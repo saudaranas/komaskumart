@@ -8,6 +8,11 @@
 <meta property="og:title" content="Kod wakil KOMASKU: soalan biasa">
 <meta property="og:description" content="Bila perlu tunjuk kod, dan apa perlu buat kalau terlupa.">
 <meta property="og:image" content="https://komaskumart.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://komaskumart.com/artikel/kod-wakil-soalan-biasa.html">
+<meta property="og:site_name" content="KOMASKU">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:type" content="article">
 <meta name="theme-color" content="#1b4d2e">
 <link rel="stylesheet" href="../style.css?v=2611221814">
@@ -84,9 +89,10 @@ const tajukArt = document.querySelector('h1').textContent;
 fetch(KOMASKU.API + '?a=laman').then(r => r.json()).then(j => {
   const ini = location.pathname.replace(/\.html$/, '');
   const a = (j.artikel || []).find(x => x.link && new URL(x.link, location.origin).pathname.replace(/\.html$/, '') === ini);
+  const f = document.getElementById('artGambar');
+  if (!f.hidden && !(a && a.gambar_besar)) return; // gambar statik sudah dipaparkan
   const src = a && (a.gambar_besar || a.gambar);
   if (!src) return;
-  const f = document.getElementById('artGambar');
   f.classList.toggle('segi', !a.gambar_besar);
   f.innerHTML = '<img alt="" src="' + esc(src) + '">';
   f.hidden = false;
