@@ -536,6 +536,6 @@ body.chat-terbuka .chat-buka { display: none; }
 
 /* Top bar sebaris di telefon */
 @media (max-width: 640px) {
-  .bar-atas { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(.68rem, 3.25vw, .9rem); padding: .55rem .6rem; }
-  .bar-atas .pil { display: none; }
+  .bar-atas { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(.6rem, 2.85vw, .9rem); padding: .5rem .5rem; }
+  .bar-atas .pil { margin-left: .35rem; padding: .05rem .5rem; font-size: .92em; }
 }

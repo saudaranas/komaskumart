@@ -10,8 +10,8 @@
 <meta property="og:image" content="https://komaskumart.com/og.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="style.css?v=2611221831">
-<script src="config.js?v=2611221831"></script>
+<link rel="stylesheet" href="style.css?v=2611221834">
+<script src="config.js?v=2611221834"></script>
 </head>
 <body class="kedai">
 
@@ -542,7 +542,6 @@ function bukaClaim() {
     (REF ? '\nKod wakil: ' + REF : '');
   $('claimWa').href = 'https://wa.me/' + KOMASKU.WHATSAPP + '?text=' + encodeURIComponent(mesej);
   if (!d.open) d.showModal();
-  simpan('kmk_claim', '1');
 }
 function tutupClaim(ke) {
   $('dlgClaim').close();
@@ -557,9 +556,9 @@ $('dlgClaim').addEventListener('click', e => {
 $('claimWa').addEventListener('click', () => setTimeout(() => $('dlgClaim').close(), 300));
 $('claimSemak').addEventListener('click', () => { $('dlgClaim').close(); bukaChat(true); });
 if (location.hash === '#claim') bukaClaim();
-// Muncul sendiri 3 saat selepas masuk, sekali dalam 24 jam
-else {
-  if (!ambil('kmk_claim')) setTimeout(() => { if (!$('dlg').open) bukaClaim(); }, 3000);
+// Muncul sendiri 3 saat selepas halaman dibuka (setiap kali dibuka atau refresh)
+else if (location.hash !== '#semak') {
+  setTimeout(() => { if (!$('dlg').open && $('chatPanel').hidden) bukaClaim(); }, 3000);
 }
 
 /* ---------- Chatbot semak kelayakan ---------- */
