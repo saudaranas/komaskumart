@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin – KOMASKU</title>
+<meta name="theme-color" content="#1b4d2e">
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+<style>
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+  .jumlah4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  @media (max-width: 700px) { .jumlah4 { grid-template-columns: 1fr 1fr; } }
+  .jumlah4 b { display: block; font-size: 1.5rem; color: var(--hijau); }
+  .jumlah4 span { font-size: .9rem; color: var(--kelabu); }
+  .atas { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; justify-content: space-between; margin-bottom: 1rem; }
+  .atas .medan { margin: 0; min-width: 11rem; }
+  .jadual input.mini { width: 5rem; min-height: 2.3rem; padding: .2rem .4rem; font-size: .95rem; }
+  .jadual select { min-height: 2.3rem; padding: .2rem .4rem; font-size: .95rem; width: auto; }
+  .aktiviti { list-style: none; padding: 0; margin: 0; font-size: .95rem; }
+  .aktiviti li { padding: .55rem 0; border-bottom: 1px solid var(--garis); }
+  .aktiviti time { color: var(--kelabu); margin-right: .5rem; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body class="app luas">
+<header class="app-kepala">
+  <div class="wrap"><b>KOMASKU Admin</b><button class="btn kecil kedua" id="keluar" hidden>Keluar</button></div>
+</header>
+
+<main>
+  <div class="wrap">
+    <form class="panel" id="login" hidden style="max-width:26rem">
+      <h2>Log masuk admin</h2>
+      <label for="pin">PIN admin</label>
+      <input class="input" id="pin" type="password" inputmode="numeric" autocomplete="off" required>
+      <div id="ralatLogin"></div>
+      <button class="btn penuh" style="margin-top:1rem">Masuk</button>
+    </form>
+
+    <div id="kerja" hidden>
+      <div class="panel sambung" id="tgAdmin" hidden>
+        <h2>Sambung Telegram admin</h2>
+        <p>Terima notifikasi setiap aktiviti: order, bayaran, penghantaran, pelanggan baharu, wakil baharu dan stok habis.</p>
+        <div class="deret">
+          <a class="btn" id="tgAdminLink" href="#" target="_blank" rel="noopener">Sambung Telegram</a>
+          <button class="btn kedua" type="button" id="tgAdminSemak">Saya dah tekan Start</button>
+        </div>
+      </div>
+      <div class="mesej ralat" id="tgTiada" hidden>Bot Telegram belum disediakan. Isi TELEGRAM_TOKEN dan BOT_USERNAME di sheet Tetapan.</div>
+
+      <div class="tab" role="tablist" id="tabs">
+        <button role="tab" aria-selected="true" data-tab="ringkasan">Ringkasan</button>
+        <button role="tab" aria-selected="false" data-tab="order">Order</button>
+        <button role="tab" aria-selected="false" data-tab="produk">Produk</button>
+        <button role="tab" aria-selected="false" data-tab="wakil">Wakil <span id="bilMenunggu"></span></button>
+        <button role="tab" aria-selected="false" data-tab="pelanggan">Pelanggan</button>
+        <button role="tab" aria-selected="false" data-tab="tetapan">Tetapan</button>
+      </div>
+
+      <!-- RINGKASAN -->
+      <section id="tab-ringkasan">
+        <div class="atas"><div class="medan"><label for="pilihBulan">Bulan</label><select id="pilihBulan"></select></div></div>
+        <div class="panel jumlah4" id="jumlah"></div>
+        <h2 style="font-size:1.25rem">Komisen wakil</h2>
+        <div class="skrol"><table class="jadual">
+          <thead><tr><th>Wakil</th><th class="n">Pelanggan</th><th class="n">Belum beli</th><th class="n">Order</th><th class="n">Jualan</th><th class="n">Komisen</th><th>Bayaran</th></tr></thead>
+          <tbody id="tRingkasan"></tbody></table></div>
+        <h2 style="font-size:1.25rem;margin-top:2rem">Aktiviti terkini</h2>
+        <ul class="aktiviti panel" id="aktiviti"></ul>
+      </section>
+
+      <!-- ORDER -->
+      <section id="tab-order" hidden>
+        <div class="atas">
+          <div class="medan"><label for="tapisStatus">Status</label><select id="tapisStatus">
+            <option value="aktif">Perlu tindakan</option><option value="">Semua bulan ini</option>
+            <option value="BARU">Baru</option><option value="DIBAYAR">Dibayar</option><option value="DISIAPKAN">Disiapkan</option>
+            <option value="DIHANTAR">Dihantar</option><option value="SELESAI">Selesai (kedai)</option><option value="BATAL">Batal</option></select></div>
+        </div>
+        <ul class="orang" id="lOrder"></ul>
+      </section>
+
+      <!-- PRODUK -->
+      <section id="tab-produk" hidden>
+        <div class="atas">
+          <div class="medan" style="flex:1"><label for="cariProduk">Cari</label><input class="input" id="cariProduk" type="search" placeholder="Nama, SKU atau kategori"></div>
+          <div class="deret"><button class="btn" onclick="borangImportProduk()">Import dari Excel</button><button class="btn kedua" onclick="borangProduk()">Tambah produk</button></div>
+        </div>
+        <p class="kecil" id="bilProduk"></p>
+        <div class="skrol"><table class="jadual">
+          <thead><tr><th>Produk</th><th>Kategori</th><th class="n">Harga</th><th class="n">Stok</th><th>Habis</th><th></th></tr></thead>
+          <tbody id="tProduk"></tbody></table></div>
+      </section>
+
+      <!-- WAKIL -->
+      <section id="tab-wakil" hidden>
+        <div class="atas"><h2 style="margin:0">Wakil (affiliate)</h2><button class="btn" onclick="borangWakil()">Tambah wakil</button></div>
+        <div class="skrol"><table class="jadual">
+          <thead><tr><th>Nama</th><th>Kod</th><th>Upline</th><th class="n">Pelanggan</th><th>Telegram</th><th>Status</th><th></th></tr></thead>
+          <tbody id="tWakil"></tbody></table></div>
+      </section>
+
+      <!-- PELANGGAN -->
+      <section id="tab-pelanggan" hidden>
+        <div class="atas">
+          <div class="medan"><label for="tapisWakil">Wakil</label><select id="tapisWakil"></select></div>
+          <div class="medan" style="flex:1"><label for="cariPel">Cari</label><input class="input" id="cariPel" type="search" placeholder="Nama, IC atau kampung"></div>
+          <div class="deret"><button class="btn" onclick="borangImportPel()">Import senarai asnaf</button><button class="btn kedua" onclick="borangPel()">Tambah</button></div>
+        </div>
+        <p class="kecil" id="bilPel"></p>
+        <div class="skrol"><table class="jadual">
+          <thead><tr><th>Nama</th><th>IC</th><th>Kampung</th><th>Wakil</th><th>Bulan ini</th><th></th></tr></thead>
+          <tbody id="tPel"></tbody></table></div>
+      </section>
+
+      <!-- TETAPAN -->
+      <section id="tab-tetapan" hidden>
+        <form class="panel" id="borangTetapan" style="max-width:40rem"></form>
+      </section>
+    </div>
+  </div>
+</main>
+
+<dialog id="dlg"><div id="dlgIsi"></div></dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+let PIN = ambil('kmk_apin');
+let RS = null, OR = [], PR = [], WK = [], PL = [];
+
+async function masuk(pin) {
+  const r = await api('aLogin', { pin });
+  PIN = pin; simpan('kmk_apin', pin);
+  $('login').hidden = true; $('kerja').hidden = false; $('keluar').hidden = false;
+  if (!r.botAda) $('tgTiada').hidden = false;
+  else if (!r.adminTg) { $('tgAdmin').hidden = false; $('tgAdminLink').href = r.adminTgUrl; }
+  await Promise.all([muatRingkasan(), muatOrder(), muatProduk(), muatWakil(), muatPel(), muatTetapan()]);
+}
+$('login').addEventListener('submit', async e => {
+  e.preventDefault(); $('ralatLogin').innerHTML = '';
+  try { await masuk($('pin').value.trim()); } catch (err) { $('ralatLogin').innerHTML = ralatHtml(err.message); }
+});
+$('keluar').addEventListener('click', () => { simpan('kmk_apin', null); location.reload(); });
+$('tgAdminSemak').addEventListener('click', async () => {
+  const r = await api('aTelegram', { pin: PIN });
+  if (r.adminTg) { $('tgAdmin').hidden = true; toast('Telegram admin disambung'); } else toast('Belum disambung. Tekan Start dalam Telegram dahulu.');
+});
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  ['ringkasan', 'order', 'produk', 'wakil', 'pelanggan', 'tetapan'].forEach(t => $('tab-' + t).hidden = b.dataset.tab !== t);
+  if (b.dataset.tab === 'order') muatOrder();
+  if (b.dataset.tab === 'ringkasan') muatRingkasan(RS && RS.bulan);
+});
+const borangAksi = (id, fn, mesej) => async () => {
+  const btn = $(id); btn.disabled = true;
+  try { await fn(); tutup(); if (mesej) toast(mesej); } catch (e) { $('eD').innerHTML = ralatHtml(e.message); btn.disabled = false; }
+};
+const opsyenWakil = (sel, kosong) => `<option value="">${kosong || 'Tiada'}</option>` +
+  WK.filter(w => w.status === 'AKTIF').map(w => `<option value="${w.id}" ${w.id === sel ? 'selected' : ''}>${esc(w.nama)} (${esc(w.kod)})</option>`).join('');
+
+/* ---------- Ringkasan ---------- */
+async function muatRingkasan(bulan) {
+  RS = await api('aRingkasan', { pin: PIN, bulan });
+  $('pilihBulan').innerHTML = RS.senaraiBulan.map(b => `<option value="${b.bulan}" ${b.bulan === RS.bulan ? 'selected' : ''}>${esc(b.label)}</option>`).join('');
+  const j = RS.jumlah;
+  $('jumlah').innerHTML = `<div><b>${rm(j.jualan)}</b><span>Jualan melalui IC (${j.order} order, ${j.website} online)</span></div>
+    <div><b>${rm(j.komisen)}</b><span>Komisen wakil</span></div>
+    <div><b>${rm(j.bonus)}</b><span>Tambahan kepada pelanggan</span></div>
+    <div><b>${j.pelangganTetap} / ${j.pelanggan}</b><span>Pelanggan ada wakil / jumlah nama</span></div>`;
+  $('tRingkasan').innerHTML = RS.baris.length ? RS.baris.map(b => `<tr><td>${esc(b.nama)} <span class="kod kecil">${esc(b.kod)}</span>${b.upline ? `<div class="kecil">Bawah ${esc(b.upline)}</div>` : ''}</td>
+    <td class="n">${b.pelanggan}</td><td class="n">${b.belumBeli}</td><td class="n">${b.order}</td><td class="n">${rm(b.jualan)}</td>
+    <td class="n">${rm(b.komisen)}${b.komisenTier ? `<div class="kecil">Tier 1: ${rm(b.komisenTier)}</div>` : ''}</td>
+    <td>${b.dibayar ? 'Dibayar ' + tarikh(b.dibayar) : b.komisen ? `<button class="btn kecil kedua" onclick="tandaBayar('${b.id}')">Tanda dibayar</button>` : '-'}</td></tr>`).join('')
+    : '<tr><td colspan="7">Belum ada wakil. Tambah di tab Wakil.</td></tr>';
+  $('aktiviti').innerHTML = RS.aktiviti.length ? RS.aktiviti.map(a => `<li><time>${tarikh(a.masa, 1)}</time>${esc(a.butiran)}</li>`).join('') : '<li>Belum ada aktiviti.</li>';
+}
+$('pilihBulan').addEventListener('change', e => muatRingkasan(e.target.value));
+
+function tandaBayar(id) {
+  const b = RS.baris.find(x => x.id === id);
+  buka(`<h2>Tanda komisen dibayar?</h2><p>${esc(b.nama)}, ${esc(RS.bulanLabel)}: <b>${rm(b.komisen)}</b></p>
+    <div class="medan"><label for="nB">Nota (pilihan)</label><input class="input" id="nB" placeholder="Contoh: tunai, atau rujukan bank"></div>
+    <div id="eD"></div><div class="deret"><button class="btn" id="okD">Tanda dibayar</button><button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  $('okD').onclick = borangAksi('okD', async () => { await api('aBayar', { pin: PIN, bulan: RS.bulan, affiliate_id: id, nota: $('nB').value }); muatRingkasan(RS.bulan); }, 'Ditanda dibayar');
+}
+
+/* ---------- Order ---------- */
+async function muatOrder() { OR = (await api('aOrder', { pin: PIN })).order; lukisOrder(); }
+function lukisOrder() {
+  const t = $('tapisStatus').value;
+  const l = OR.filter(o => t === 'aktif' ? ['BARU', 'DIBAYAR', 'DISIAPKAN'].includes(o.status) : !t || o.status === t);
+  $('lOrder').innerHTML = l.length ? l.map(o => `<li>
+    <div class="baris-atas"><span class="nama">${esc(o.nama)}</span><span class="kod">${esc(o.no)}</span></div>
+    <div class="info">${o.saluran === 'kedai' ? 'Jualan kedai' : o.kaedah === 'hantar' ? 'Hantar: ' + esc(o.alamat) : 'Ambil di kedai'}, ${tarikh(o.masa, 1)}, IC hujung ${esc(o.ic4)}${o.affiliate ? ', wakil ' + esc(o.affiliate) : ', tiada wakil'}</div>
+    <div class="info">Tolak IC ${rm(o.jumlah_bayar)}${o.bonus ? `, tambahan ${rm(o.bonus)}` : ''}${o.kom_aff ? `, komisen ${rm(o.kom_aff + o.kom_upline)}` : ''}${o.resit ? ', resit ' + esc(o.resit) : ''}</div>
+    ${o.item.length ? `<details class="item-order"><summary>${o.item.length} jenis barang</summary><ul>${o.item.map(i => `<li>${i.qty} × ${esc(i.nama)}</li>`).join('')}</ul></details>` : ''}
+    ${o.nota ? `<div class="info">Nota: ${esc(o.nota)}</div>` : ''}
+    <span class="lencana ${o.status === 'BATAL' ? 'merah' : o.status === 'BARU' ? '' : 'hijau'}">${LABEL_STATUS[o.status]}</span>
+    <div class="aksi">
+      ${o.status === 'BARU' ? `<button class="btn kecil" onclick="tukarStatus('${o.id}','DIBAYAR')">Sahkan bayaran IC</button>` : ''}
+      ${o.status === 'DIBAYAR' ? `<button class="btn kecil" onclick="tukarStatus('${o.id}','DISIAPKAN')">Tanda disiapkan</button>` : ''}
+      ${['DIBAYAR', 'DISIAPKAN'].includes(o.status) ? `<button class="btn kecil kedua" onclick="tukarStatus('${o.id}','DIHANTAR')">Tanda dihantar</button>` : ''}
+      ${['BARU', 'DIBAYAR', 'DISIAPKAN'].includes(o.status) ? `<button class="btn kecil bahaya" onclick="tukarStatus('${o.id}','BATAL')">Batal</button>` : ''}
+    </div></li>`).join('') : '<li class="kosong">Tiada order.</li>';
+}
+$('tapisStatus').addEventListener('change', lukisOrder);
+
+function tukarStatus(id, status) {
+  const o = OR.find(x => x.id === id);
+  buka(`<h2>${LABEL_STATUS[status]}: ${esc(o.no)}</h2>
+    ${status === 'DIBAYAR' ? `<p>Pastikan <b>${rm(o.jumlah_bayar)}</b> sudah ditolak daripada IC ${esc(o.nama)}.</p><div class="medan"><label for="sR">No. resit terminal (pilihan)</label><input class="input" id="sR"></div>` : ''}
+    ${status === 'BATAL' ? `<p>Stok dipulangkan dan komisen dibatalkan.</p><div class="medan"><label for="sS">Sebab</label><input class="input" id="sS"></div>` : ''}
+    <div id="eD"></div><div class="deret"><button class="btn ${status === 'BATAL' ? 'bahaya' : ''}" id="okD">Sahkan</button><button class="btn kedua" onclick="tutup()">Kembali</button></div>`);
+  $('okD').onclick = borangAksi('okD', async () => {
+    await api('aStatus', { pin: PIN, order_id: id, status, resit: $('sR') ? $('sR').value : '', sebab: $('sS') ? $('sS').value : '' });
+    muatOrder(); muatProduk();
+  }, 'Dikemas kini');
+}
+
+/* ---------- Produk ---------- */
+async function muatProduk() { PR = (await api('aProduk', { pin: PIN })).produk; lukisProduk(); }
+function lukisProduk() {
+  const q = $('cariProduk').value.trim().toLowerCase();
+  const l = PR.filter(p => !q || (p.nama + ' ' + p.sku + ' ' + p.kategori).toLowerCase().includes(q));
+  $('bilProduk').textContent = `${l.length} daripada ${PR.length} produk. Kosongkan stok untuk tidak jejak stok.`;
+  $('tProduk').innerHTML = l.length ? l.slice(0, 300).map(p => `<tr ${p.aktif === 'TIDAK' ? 'style="opacity:.5"' : ''}>
+    <td>${esc(p.nama)}<div class="kecil">${esc(p.sku)}</div></td><td>${esc(p.kategori)}</td><td class="n">${rm(p.harga)}</td>
+    <td class="n"><input class="input mini" inputmode="numeric" value="${esc(p.stok)}" aria-label="Stok ${esc(p.nama)}" onchange="ubahProduk('${p.id}', {stok: this.value})"></td>
+    <td><select aria-label="Habis ${esc(p.nama)}" onchange="ubahProduk('${p.id}', {habis: this.value})"><option value="TIDAK">Ada</option><option value="YA" ${p.habis === 'YA' ? 'selected' : ''}>Habis</option></select></td>
+    <td><button class="btn kecil kedua" onclick="borangProduk('${p.id}')">Ubah</button></td></tr>`).join('')
+    : '<tr><td colspan="6">Tiada produk. Tekan "Import dari Excel".</td></tr>';
+}
+$('cariProduk').addEventListener('input', lukisProduk);
+
+async function ubahProduk(id, data) {
+  try { await api('aProdukSimpan', { pin: PIN, data: Object.assign({ id }, data) }); toast('Disimpan'); muatProduk(); } catch (e) { toast(e.message); }
+}
+
+function borangImportProduk() {
+  buka(`<h2>Import produk dari Excel</h2>
+    <p class="kecil">Salin lajur dari Excel dan tampal di bawah, mengikut susunan ini:<br><b>SKU, Nama, Kategori, Harga, Stok</b> (lajur ke-6 Gambar URL, pilihan).<br>Produk dengan SKU sama akan dikemas kini. Biarkan Stok kosong jika tidak mahu jejak stok.</p>
+    <div class="medan"><label for="iP">Data produk</label><textarea id="iP" placeholder="B001	Beras Super 10kg	Beras	32.50	20"></textarea></div>
+    <div id="eD"></div><div class="deret"><button class="btn" id="okD">Import</button><button class="btn kedua" onclick="tutup()">Tutup</button></div>`);
+  $('okD').onclick = async () => {
+    $('okD').disabled = true;
+    try {
+      const r = await api('aProdukImport', { pin: PIN, teks: $('iP').value });
+      $('eD').innerHTML = `<div class="mesej ok">${r.ditambah} produk baharu, ${r.dikemas} dikemas kini.</div>` + (r.langkau.length ? ralatHtml(r.langkau.length + ' baris dilangkau: ' + r.langkau.slice(0, 10).join('; ')) : '');
+      $('iP').value = ''; muatProduk();
+    } catch (e) { $('eD').innerHTML = ralatHtml(e.message); }
+    $('okD').disabled = false;
+  };
+}
+
+function borangProduk(id) {
+  const p = PR.find(x => x.id === id) || { sku: '', nama: '', kategori: '', harga: '', stok: '', gambar: '', aktif: 'YA', susunan: '' };
+  buka(`<h2>${id ? 'Ubah' : 'Tambah'} produk</h2>
+    <div class="medan"><label for="fN">Nama</label><input class="input" id="fN" value="${esc(p.nama)}"></div>
+    <div class="grid2">
+      <div class="medan"><label for="fS">SKU</label><input class="input" id="fS" value="${esc(p.sku)}"></div>
+      <div class="medan"><label for="fK">Kategori</label><input class="input" id="fK" value="${esc(p.kategori)}" list="senaraiKat"></div>
+      <div class="medan"><label for="fH">Harga (RM)</label><input class="input" id="fH" inputmode="decimal" value="${esc(p.harga)}"></div>
+      <div class="medan"><label for="fT">Stok</label><input class="input" id="fT" inputmode="numeric" value="${esc(p.stok)}" placeholder="Kosong = tidak dijejak"></div>
+    </div>
+    <datalist id="senaraiKat">${Array.from(new Set(PR.map(x => x.kategori))).map(k => `<option value="${esc(k)}">`).join('')}</datalist>
+    <div class="medan"><label for="fG">Gambar URL (pilihan)</label><input class="input" id="fG" value="${esc(p.gambar)}"></div>
+    <div class="grid2">
+      <div class="medan"><label for="fU">Susunan (pilihan)</label><input class="input" id="fU" inputmode="numeric" value="${esc(p.susunan)}"></div>
+      <div class="medan"><label for="fA">Papar di laman</label><select id="fA"><option value="YA">Ya</option><option value="TIDAK" ${p.aktif === 'TIDAK' ? 'selected' : ''}>Tidak</option></select></div>
+    </div>
+    <div id="eD"></div>
+    <div class="deret"><button class="btn" id="okD">Simpan</button>${id ? '<button class="btn bahaya" id="padam">Padam</button>' : ''}<button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  $('okD').onclick = borangAksi('okD', async () => {
+    await api('aProdukSimpan', { pin: PIN, data: { id, nama: $('fN').value, sku: $('fS').value, kategori: $('fK').value, harga: $('fH').value, stok: $('fT').value, gambar: $('fG').value, susunan: $('fU').value, aktif: $('fA').value } });
+    muatProduk();
+  }, 'Disimpan');
+  if (id) $('padam').onclick = async () => { if (!confirm('Padam produk ini?')) return; await api('aProdukPadam', { pin: PIN, id }); tutup(); muatProduk(); toast('Dipadam'); };
+}
+
+/* ---------- Wakil ---------- */
+async function muatWakil() {
+  WK = (await api('aAffiliate', { pin: PIN })).affiliate;
+  const menunggu = WK.filter(w => w.status === 'MENUNGGU').length;
+  $('bilMenunggu').textContent = menunggu ? '(' + menunggu + ' baru)' : '';
+  const label = { AKTIF: 'Aktif', MENUNGGU: 'Menunggu kelulusan', TIDAK: 'Tidak aktif', TOLAK: 'Ditolak' };
+  $('tWakil').innerHTML = WK.length ? WK.map(w => `<tr ${w.status === 'TIDAK' || w.status === 'TOLAK' ? 'style="opacity:.5"' : ''}>
+    <td>${esc(w.nama)}<div class="kecil">${esc(w.telefon)}${w.lihat_prospek === 'YA' ? ', boleh lihat prospek' : ''}</div></td>
+    <td class="kod">${esc(w.kod || '-')}</td><td>${esc(w.upline || '-')}</td><td class="n">${w.pelanggan}</td>
+    <td>${w.telegram ? 'Disambung' : 'Belum'}</td><td>${label[w.status] || w.status}</td>
+    <td><div class="deret" style="gap:.4rem">
+      ${w.status === 'MENUNGGU' ? `<button class="btn kecil" onclick="lulus('${w.id}')">Luluskan</button>` : ''}
+      ${w.status === 'AKTIF' ? `<button class="btn kecil" onclick="hantarLink('${w.id}')">Hantar link</button>` : ''}
+      <button class="btn kecil kedua" onclick="borangWakil('${w.id}')">Ubah</button></div></td></tr>`).join('')
+    : '<tr><td colspan="7">Belum ada wakil.</td></tr>';
+  $('tapisWakil').innerHTML = '<option value="">Semua</option><option value="-">Belum ada wakil (prospek)</option>' + WK.map(w => `<option value="${w.id}">${esc(w.nama)}</option>`).join('');
+}
+
+async function lulus(id) {
+  try { await api('aAffiliateSimpan', { pin: PIN, data: { id, status: 'AKTIF' } }); toast('Diluluskan'); await muatWakil(); hantarLink(id); } catch (e) { toast(e.message); }
+}
+
+function hantarLink(id) {
+  const w = WK.find(x => x.id === id);
+  const teks = `Salam ${w.nama}. Akaun wakil KOMASKU anda sudah aktif.\n\nKod wakil: ${w.kod}\nLink kedai anda (kongsi dengan pelanggan): ${w.link}\n\nDashboard anda (simpan, jangan kongsi): ${w.dashboard}\n\nDalam dashboard, tekan "Sambung Telegram" untuk terima notifikasi.`;
+  buka(`<h2>Link wakil: ${esc(w.nama)}</h2><p class="kotak-teks">${esc(teks).replace(/\n/g, '<br>')}</p>
+    <a class="btn penuh" target="_blank" rel="noopener" href="${esc(waLink(w.telefon, teks))}">Hantar melalui WhatsApp</a>
+    <button class="btn kedua penuh" style="margin-top:.6rem" onclick='salinTeks(${JSON.stringify(teks)}, "Disalin")'>Salin mesej</button>
+    <button class="btn bahaya penuh" style="margin-top:.6rem" onclick="linkBaru('${w.id}')">Tukar link dashboard (jika bocor)</button>`);
+}
+
+async function linkBaru(id) {
+  if (!confirm('Link dashboard lama tidak boleh digunakan lagi dan Telegram perlu disambung semula. Teruskan?')) return;
+  await api('aAffiliateLinkBaru', { pin: PIN, id }); await muatWakil(); hantarLink(id); toast('Link baharu dijana');
+}
+
+function borangWakil(id) {
+  const w = WK.find(x => x.id === id) || { nama: '', kod: '', telefon: '', ic: '', upline_id: '', lihat_prospek: 'TIDAK', status: 'AKTIF' };
+  buka(`<h2>${id ? 'Ubah' : 'Tambah'} wakil</h2>
+    <div class="medan"><label for="wN">Nama</label><input class="input" id="wN" value="${esc(w.nama)}"></div>
+    <div class="grid2">
+      <div class="medan"><label for="wK">Kod wakil</label><input class="input kod" id="wK" value="${esc(w.kod)}" placeholder="Auto dari nama"></div>
+      <div class="medan"><label for="wT">Telefon</label><input class="input" id="wT" inputmode="tel" value="${esc(w.telefon)}"></div>
+    </div>
+    <div class="medan"><label for="wI">No. IC (pilihan)</label><input class="input" id="wI" inputmode="numeric" value="${esc(w.ic)}"></div>
+    <div class="medan"><label for="wU">Upline</label><select id="wU">${opsyenWakil(w.upline_id, 'Tiada (wakil utama)')}</select></div>
+    <div class="grid2">
+      <div class="medan"><label for="wP">Boleh lihat senarai prospek</label><select id="wP"><option value="TIDAK">Tidak</option><option value="YA" ${w.lihat_prospek === 'YA' ? 'selected' : ''}>Ya</option></select></div>
+      <div class="medan"><label for="wS">Status</label><select id="wS">${['AKTIF', 'MENUNGGU', 'TIDAK', 'TOLAK'].map(s => `<option value="${s}" ${w.status === s ? 'selected' : ''}>${{ AKTIF: 'Aktif', MENUNGGU: 'Menunggu', TIDAK: 'Tidak aktif', TOLAK: 'Ditolak' }[s]}</option>`).join('')}</select></div>
+    </div>
+    <div id="eD"></div>
+    <div class="deret"><button class="btn" id="okD">Simpan</button><button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  $('okD').onclick = borangAksi('okD', async () => {
+    await api('aAffiliateSimpan', { pin: PIN, data: { id, nama: $('wN').value, kod: $('wK').value, telefon: $('wT').value, ic: $('wI').value, upline_id: $('wU').value, lihat_prospek: $('wP').value, status: $('wS').value } });
+    muatWakil(); muatRingkasan(RS && RS.bulan);
+  }, 'Disimpan');
+}
+
+/* ---------- Pelanggan ---------- */
+async function muatPel() { PL = (await api('aPelanggan', { pin: PIN })).pelanggan; lukisPel(); }
+function lukisPel() {
+  const t = $('tapisWakil').value, q = $('cariPel').value.trim().toLowerCase();
+  const l = PL.filter(p => (!t || (t === '-' ? !p.affiliate_id : p.affiliate_id === t)) && (!q || (p.nama + ' ' + p.ic + ' ' + p.kampung).toLowerCase().includes(q)));
+  $('bilPel').textContent = `${l.length} daripada ${PL.length} nama`;
+  $('tPel').innerHTML = l.length ? l.slice(0, 400).map(p => `<tr ${p.aktif === 'TIDAK' ? 'style="opacity:.5"' : ''}>
+    <td>${esc(p.nama)}<div class="kecil">${esc(p.telefon)}${p.dijumpai ? ', dijumpai ' + esc(p.olehJumpa) + ' ' + tarikh(p.dijumpai) : ''}</div></td>
+    <td class="kod">${esc(p.ic)}</td><td>${esc(p.kampung)}</td><td>${esc(p.affiliate || '-')}</td>
+    <td>${p.beliBulanIni ? 'Sudah beli' : '-'}</td>
+    <td><button class="btn kecil kedua" onclick="borangPel('${p.id}')">Ubah</button></td></tr>`).join('')
+    : '<tr><td colspan="6">Tiada nama. Tekan "Import senarai asnaf".</td></tr>';
+}
+$('tapisWakil').addEventListener('change', lukisPel);
+$('cariPel').addEventListener('input', lukisPel);
+
+function borangImportPel() {
+  buka(`<h2>Import senarai asnaf</h2>
+    <p class="kecil">Satu nama satu baris, dari Excel atau dipisahkan koma:<br><b>Nama, No IC, Kampung, Telefon, Alamat</b></p>
+    <div class="medan"><label for="iL">Senarai</label><textarea id="iL" placeholder="Siti Aminah binti Hassan	650312045678	Kampung Kundur	0129998888	No 1, Kampung Kundur"></textarea></div>
+    <div class="medan"><label for="iW">Terus jadikan pelanggan tetap wakil (pilihan)</label><select id="iW">${opsyenWakil('', 'Tidak, masukkan sebagai prospek')}</select></div>
+    <div id="eD"></div><div class="deret"><button class="btn" id="okD">Import</button><button class="btn kedua" onclick="tutup()">Tutup</button></div>`);
+  $('okD').onclick = async () => {
+    $('okD').disabled = true;
+    try {
+      const r = await api('aPelangganImport', { pin: PIN, teks: $('iL').value, affiliate_id: $('iW').value });
+      $('eD').innerHTML = `<div class="mesej ok">${r.ditambah} nama ditambah.</div>` + (r.langkau.length ? ralatHtml(r.langkau.length + ' baris dilangkau: ' + r.langkau.slice(0, 10).join('; ')) : '');
+      $('iL').value = ''; muatPel();
+    } catch (e) { $('eD').innerHTML = ralatHtml(e.message); }
+    $('okD').disabled = false;
+  };
+}
+
+function borangPel(id) {
+  const p = PL.find(x => x.id === id) || { nama: '', ic: '', kampung: '', telefon: '', alamat: '', affiliate_id: '', aktif: 'YA' };
+  buka(`<h2>${id ? 'Ubah' : 'Tambah'} pelanggan</h2>
+    <div class="medan"><label for="pN">Nama</label><input class="input" id="pN" value="${esc(p.nama)}"></div>
+    <div class="grid2">
+      <div class="medan"><label for="pI">No. IC</label><input class="input" id="pI" inputmode="numeric" value="${esc(p.ic)}"></div>
+      <div class="medan"><label for="pT">Telefon</label><input class="input" id="pT" inputmode="tel" value="${esc(p.telefon)}"></div>
+    </div>
+    <div class="medan"><label for="pK">Kampung</label><input class="input" id="pK" value="${esc(p.kampung)}"></div>
+    <div class="medan"><label for="pA">Alamat</label><input class="input" id="pA" value="${esc(p.alamat)}"></div>
+    <div class="medan"><label for="pW">Wakil</label><select id="pW">${opsyenWakil(p.affiliate_id, 'Tiada (prospek)')}</select>
+      ${id && p.affiliate_id ? '<p class="kecil" style="margin:.3rem 0 0">Tukar wakil hanya jika ada sebab kukuh. Pelanggan biasanya kekal dengan wakil pertama.</p>' : ''}</div>
+    <div class="medan"><label for="pS">Status</label><select id="pS"><option value="YA">Aktif</option><option value="TIDAK" ${p.aktif === 'TIDAK' ? 'selected' : ''}>Tidak aktif</option></select></div>
+    <div id="eD"></div>
+    <div class="deret"><button class="btn" id="okD">Simpan</button><button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  $('okD').onclick = borangAksi('okD', async () => {
+    await api('aPelangganSimpan', { pin: PIN, data: { id, nama: $('pN').value, ic: $('pI').value, telefon: $('pT').value, kampung: $('pK').value, alamat: $('pA').value, affiliate_id: $('pW').value, aktif: $('pS').value } });
+    muatPel();
+  }, 'Disimpan');
+}
+
+/* ---------- Tetapan ---------- */
+const LABEL_TETAPAN = {
+  KOMISEN_TERUS_PERATUS: ['Komisen wakil utama (%)', 'Wakil tanpa upline, contoh Salman. 10% daripada RM200 = RM20.'],
+  KOMISEN_TIER1_PERATUS: ['Komisen wakil Tier 1 (%)', 'Wakil yang ada upline. 5% daripada RM200 = RM10.'],
+  KOMISEN_UPLINE_PERATUS: ['Komisen upline atas jualan Tier 1 (%)', 'Diterima upline bila pelanggan wakil Tier 1 membeli. 5% = RM10.'],
+  BONUS_PESERTA: ['Tambahan barang pelanggan (RM)', 'Sekali sebulan, untuk pelanggan yang ada wakil.'],
+  TERIMA_ORDER: ['Terima order online', 'Pilih Tidak untuk tutup order online sementara.']
+};
+async function muatTetapan() {
+  const t = (await api('aTetapan', { pin: PIN })).tetapan;
+  $('borangTetapan').innerHTML = '<h2>Kadar komisen dan tambahan</h2>' + t.map(x => {
+    const [lbl, ket] = LABEL_TETAPAN[x.kunci] || [x.kunci, ''];
+    const input = x.kunci === 'TERIMA_ORDER'
+      ? `<select id="t_${x.kunci}"><option value="YA">Ya</option><option value="TIDAK" ${x.nilai === 'TIDAK' ? 'selected' : ''}>Tidak</option></select>`
+      : `<input class="input" id="t_${x.kunci}" inputmode="decimal" value="${esc(x.nilai)}">`;
+    return `<div class="medan"><label for="t_${x.kunci}">${lbl}</label>${input}<p class="kecil" style="margin:.3rem 0 0">${ket}</p></div>`;
+  }).join('') + '<div id="eTet"></div><button class="btn">Simpan tetapan</button>';
+  $('borangTetapan').dataset.kunci = t.map(x => x.kunci).join(',');
+}
+$('borangTetapan').addEventListener('submit', async e => {
+  e.preventDefault();
+  const data = {};
+  $('borangTetapan').dataset.kunci.split(',').forEach(k => data[k] = $('t_' + k).value);
+  try {
+    const r = await api('aTetapanSimpan', { pin: PIN, data });
+    $('eTet').innerHTML = r.amaran ? ralatHtml(r.amaran) : '<div class="mesej ok">Tetapan disimpan. Kadar baharu digunakan untuk order seterusnya.</div>';
+  } catch (err) { $('eTet').innerHTML = ralatHtml(err.message); }
+});
+
+if (PIN) masuk(PIN).catch(() => { simpan('kmk_apin', null); $('login').hidden = false; });
+else $('login').hidden = false;
+</script>
+</body>
+</html>

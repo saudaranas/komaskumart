@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Dashboard wakil – KOMASKU</title>
+<meta name="theme-color" content="#1b4d2e">
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+</head>
+<body class="app">
+<header class="app-kepala"><div class="wrap"><b>KOMASKU</b><span id="bulanLabel"></span></div></header>
+
+<main>
+  <div class="wrap">
+    <p class="memuat" id="memuat">Memuatkan dashboard…</p>
+    <div class="mesej ralat" id="ralat" hidden></div>
+
+    <div id="isi" hidden>
+      <h1 class="salam">Salam, <span id="namaA"></span></h1>
+      <p class="kecil" id="infoKod"></p>
+
+      <div class="panel">
+        <div class="kecil">Komisen bulan ini</div>
+        <div class="angka-besar" id="komisen">RM0.00</div>
+        <div class="kecil" id="pecahan"></div>
+        <div class="kiraan">
+          <div><b id="nPel">0</b><span>Pelanggan tetap</span></div>
+          <div><b id="nBelum">0</b><span>Belum beli bulan ini</span></div>
+          <div><b id="nOrder">0</b><span>Order bulan ini</span></div>
+        </div>
+      </div>
+
+      <div class="deret" style="margin-bottom:1rem">
+        <a class="btn" id="btnKedai" href="#" target="_blank" rel="noopener">Buka kedai untuk pelanggan</a>
+        <button class="btn kedua" type="button" id="btnKongsi">Kongsi link saya</button>
+      </div>
+
+      <div class="panel sambung" id="sambungTg" hidden>
+        <h2>Terima notifikasi di Telegram</h2>
+        <p>Dapat mesej setiap kali ada order, bayaran, penghantaran dan pelanggan baharu.</p>
+        <div class="deret">
+          <a class="btn" id="btnTg" href="#" target="_blank" rel="noopener">Sambung Telegram</a>
+          <button class="btn kedua" id="btnTgSemak" type="button">Saya dah tekan Start</button>
+        </div>
+      </div>
+
+      <div class="tab" role="tablist" id="tabs">
+        <button role="tab" aria-selected="true" data-tab="order">Order <span id="tOrder"></span></button>
+        <button role="tab" aria-selected="false" data-tab="pelanggan">Pelanggan</button>
+        <button role="tab" aria-selected="false" data-tab="prospek" id="tabProspek" hidden>Prospek</button>
+        <button role="tab" aria-selected="false" data-tab="rangkaian">Rangkaian</button>
+        <button role="tab" aria-selected="false" data-tab="komisen">Komisen</button>
+      </div>
+
+      <section id="tab-order"></section>
+
+      <section id="tab-pelanggan" hidden>
+        <input class="input" type="search" id="cariPel" placeholder="Cari nama pelanggan" aria-label="Cari pelanggan">
+        <div class="kumpulan-tajuk"><h3>Belum beli bulan ini</h3><span id="cBelum"></span></div>
+        <ul class="orang" id="lBelum"></ul>
+        <div class="kumpulan-tajuk"><h3>Sudah beli bulan ini</h3><span id="cSudah"></span></div>
+        <ul class="orang" id="lSudah"></ul>
+      </section>
+
+      <section id="tab-prospek" hidden>
+        <div class="atas-bar">
+          <input class="input" type="search" id="cariPros" placeholder="Cari nama atau kampung" aria-label="Cari prospek">
+          <button class="btn" type="button" onclick="borangProspek()">Tambah nama</button>
+        </div>
+        <p class="kecil">Prospek ialah asnaf yang belum jadi pelanggan sesiapa. Bila mereka beli melalui link atau kod anda, mereka jadi pelanggan tetap anda.</p>
+        <div class="kumpulan-tajuk"><h3>Belum dijumpai</h3><span id="cPros1"></span></div>
+        <ul class="orang" id="lPros1"></ul>
+        <div class="kumpulan-tajuk"><h3>Sudah dijumpai, belum beli</h3><span id="cPros2"></span></div>
+        <ul class="orang" id="lPros2"></ul>
+      </section>
+
+      <section id="tab-rangkaian" hidden>
+        <div class="panel">
+          <h2>Bawa wakil baharu</h2>
+          <p>Pelanggan atau kenalan boleh daftar sebagai wakil di bawah anda. Bila mereka membawa pelanggan, anda terima <b id="kadarUp"></b>% daripada jualan itu.</p>
+          <button class="btn" type="button" id="btnDaftar">Kongsi link daftar wakil</button>
+        </div>
+        <div class="kumpulan-tajuk"><h3>Wakil di bawah anda</h3><span id="cDown"></span></div>
+        <ul class="orang" id="lDown"></ul>
+      </section>
+
+      <section id="tab-komisen" hidden>
+        <div class="panel"><p style="margin:0" id="kadarTeks"></p></div>
+        <div class="skrol">
+          <table class="jadual">
+            <thead><tr><th>Bulan</th><th class="n">Komisen</th><th>Bayaran</th></tr></thead>
+            <tbody id="sejarah"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<dialog id="dlg"><div id="dlgIsi"></div></dialog>
+
+<script>
+const K = new URLSearchParams(location.search).get('k');
+const $ = id => document.getElementById(id);
+let D = null;
+
+async function muat(senyap) {
+  try {
+    D = await api('fDash', { k: K });
+    lukis();
+    $('memuat').hidden = true; $('isi').hidden = false;
+  } catch (e) {
+    if (senyap) return toast(e.message);
+    $('memuat').hidden = true; $('ralat').textContent = e.message; $('ralat').hidden = false;
+  }
+}
+
+function lukis() {
+  const r = D.ringkas;
+  $('bulanLabel').textContent = D.bulanLabel;
+  $('namaA').textContent = D.aff.nama;
+  $('infoKod').innerHTML = `Kod wakil anda: <b class="kod">${esc(D.aff.kod)}</b>${D.aff.upline ? ', di bawah ' + esc(D.aff.upline) : ''}`;
+  $('komisen').textContent = rm(r.komisen);
+  $('pecahan').textContent = r.komisenTier ? `${rm(r.komisenSendiri)} daripada pelanggan anda, ${rm(r.komisenTier)} daripada wakil di bawah anda` : '';
+  $('nPel').textContent = r.pelanggan; $('nBelum').textContent = r.belumBeli; $('nOrder').textContent = r.order;
+  $('btnKedai').href = D.link;
+  $('kadarUp').textContent = D.kadar.upline;
+  $('kadarTeks').innerHTML = `Anda terima <b>${D.kadar.kendiri}%</b> daripada setiap belian pelanggan tetap anda (contoh: RM200 = ${rm(D.kadar.kendiri * 2)}), dan <b>${D.kadar.upline}%</b> daripada belian pelanggan wakil di bawah anda. Pelanggan anda dapat tambahan RM${D.kadar.bonus} sebulan.`;
+
+  if (!D.aff.telegram && D.botUrl) { $('sambungTg').hidden = false; $('btnTg').href = D.botUrl; } else $('sambungTg').hidden = true;
+  $('tabProspek').hidden = !D.aff.prospek;
+
+  lukisOrder(); lukisPelanggan(); if (D.aff.prospek) lukisProspek(); lukisRangkaian();
+
+  $('sejarah').innerHTML = D.sejarah.length ? D.sejarah.map(s => `<tr><td>${esc(s.label)}</td><td class="n">${rm(s.komisen)}</td>
+    <td>${s.dibayar ? 'Dibayar ' + tarikh(s.dibayar) : 'Belum dibayar'}</td></tr>`).join('')
+    : '<tr><td colspan="3">Belum ada komisen. Komisen dikira bila order pelanggan anda dibayar.</td></tr>';
+}
+
+/* ---------- Order ---------- */
+function lukisOrder() {
+  const aktif = D.order.filter(o => ['BARU', 'DIBAYAR', 'DISIAPKAN'].includes(o.status));
+  const lain = D.order.filter(o => !['BARU', 'DIBAYAR', 'DISIAPKAN'].includes(o.status));
+  $('tOrder').textContent = aktif.length ? '(' + aktif.length + ')' : '';
+  $('tab-order').innerHTML = `
+    <div class="kumpulan-tajuk"><h3>Perlu tindakan</h3><span>${aktif.length} order</span></div>
+    <ul class="orang">${aktif.length ? aktif.map(kadOrder).join('') : '<li class="kosong">Tiada order yang perlu diuruskan.</li>'}</ul>
+    <div class="kumpulan-tajuk"><h3>Selesai (60 hari)</h3><span>${lain.length} order</span></div>
+    <ul class="orang">${lain.length ? lain.map(kadOrder).join('') : '<li class="kosong">Belum ada.</li>'}</ul>`;
+}
+
+function kadOrder(o) {
+  const item = o.item.length ? `<details class="item-order"><summary>${o.item.length} jenis barang</summary>
+      <ul>${o.item.map(i => `<li>${i.qty} × ${esc(i.nama)}</li>`).join('')}</ul></details>` : '';
+  let aksi = '';
+  if (o.status === 'BARU') aksi = `<button class="btn kecil" onclick="sahBayar('${o.id}')">Sahkan bayaran IC</button>`;
+  if (o.status === 'DIBAYAR' || o.status === 'DISIAPKAN') aksi = `<button class="btn kecil" onclick="sahHantar('${o.id}')">${o.kaedah === 'ambil' ? 'Tanda sudah diambil' : 'Tanda sudah dihantar'}</button>`;
+  if (o.telefon && ['BARU', 'DIBAYAR', 'DISIAPKAN'].includes(o.status)) aksi += `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(o.telefon, 'Assalamualaikum ' + o.nama + '. Ini berkenaan order KOMASKU ' + o.no + '.'))}">WhatsApp</a>`;
+  return `<li>
+    <div class="baris-atas"><span class="nama">${esc(o.nama)}</span><span class="kod">${esc(o.no)}</span></div>
+    <div class="info">${o.saluran === 'kedai' ? 'Belian di kedai' : o.kaedah === 'hantar' ? 'Hantar: ' + esc(o.alamat) : 'Ambil di kedai'}, ${tarikh(o.masa, 1)}</div>
+    <div class="info">Ditolak daripada IC: <b>${rm(o.jumlah_bayar)}</b>${o.bonus ? `, tambahan ${rm(o.bonus)}` : ''}${o.kom_aff ? `, komisen anda ${rm(o.kom_aff)}` : ''}</div>
+    <span class="lencana ${['DIHANTAR', 'SELESAI', 'DIBAYAR', 'DISIAPKAN'].includes(o.status) ? 'hijau' : o.status === 'BATAL' ? 'merah' : ''}">${LABEL_STATUS[o.status]}</span>
+    ${item}${aksi ? `<div class="aksi">${aksi}</div>` : ''}</li>`;
+}
+
+function sahBayar(id) {
+  const o = D.order.find(x => x.id === id);
+  buka(`<h2>Sahkan bayaran ${esc(o.no)}</h2>
+    <p>Tolak <b>${rm(o.jumlah_bayar)}</b> daripada IC ${esc(o.nama)} (hujung ${esc(o.ic4)}) di terminal, kemudian tekan sahkan.</p>
+    ${o.bonus ? `<p class="nota">Pelanggan dapat tambahan barang ${rm(o.bonus)}. Jumlah barang ${rm(o.subtotal)}.</p>` : ''}
+    <div class="medan"><label for="resit">No. resit terminal (pilihan)</label><input class="input" id="resit"></div>
+    <div id="eB"></div>
+    <div class="deret"><button class="btn" id="okB">Sahkan dibayar</button><button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  $('okB').onclick = async () => {
+    $('okB').disabled = true;
+    try { await api('fBayar', { k: K, order_id: id, resit: $('resit').value }); tutup(); toast('Bayaran disahkan'); muat(true); }
+    catch (e) { $('eB').innerHTML = ralatHtml(e.message); $('okB').disabled = false; }
+  };
+}
+
+function sahHantar(id) {
+  const o = D.order.find(x => x.id === id);
+  buka(`<h2>${o.kaedah === 'ambil' ? 'Barang sudah diambil?' : 'Barang sudah dihantar?'}</h2>
+    <p>${esc(o.no)}, ${esc(o.nama)}.</p><div id="eH"></div>
+    <div class="deret"><button class="btn" id="okH">Ya, tanda selesai</button><button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  $('okH').onclick = async () => {
+    $('okH').disabled = true;
+    try { await api('fHantar', { k: K, order_id: id }); tutup(); toast('Ditanda'); muat(true); }
+    catch (e) { $('eH').innerHTML = ralatHtml(e.message); $('okH').disabled = false; }
+  };
+}
+
+/* ---------- Pelanggan ---------- */
+function lukisPelanggan() {
+  const q = $('cariPel').value.trim().toLowerCase();
+  const l = D.pelanggan.filter(p => !q || p.nama.toLowerCase().includes(q));
+  const belum = l.filter(p => !p.beliBulanIni), sudah = l.filter(p => p.beliBulanIni);
+  const baris = p => `<li><div class="nama">${esc(p.nama)}</div>
+    <div class="info">${esc(p.kampung || '')}${p.kampung ? ', ' : ''}IC hujung ${esc(p.ic4)}${p.beliTerakhir ? ', beli terakhir ' + tarikh(p.beliTerakhir) : ''}</div>
+    <div class="aksi"><a class="btn kecil" href="${esc(D.link)}" target="_blank" rel="noopener">Order untuk dia</a>
+    ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Bantuan bulan ini sudah masuk. Boleh belanja di KOMASKU dan dapat tambahan RM${D.kadar.bonus}. Nak saya bantu order? Pilih barang di sini: ${D.link}`))}">Ingatkan</a>` : ''}</div></li>`;
+  $('cBelum').textContent = belum.length + ' orang'; $('cSudah').textContent = sudah.length + ' orang';
+  $('lBelum').innerHTML = belum.length ? belum.map(baris).join('') : `<li class="kosong">${D.pelanggan.length ? 'Semua pelanggan sudah beli bulan ini.' : 'Belum ada pelanggan tetap. Pelanggan jadi milik anda bila mereka beli melalui link atau kod anda.'}</li>`;
+  $('lSudah').innerHTML = sudah.length ? sudah.map(baris).join('') : '<li class="kosong">Belum ada.</li>';
+}
+$('cariPel').addEventListener('input', lukisPelanggan);
+
+/* ---------- Prospek ---------- */
+function lukisProspek() {
+  const q = $('cariPros').value.trim().toLowerCase();
+  const l = D.prospek.filter(p => !q || (p.nama + ' ' + p.kampung).toLowerCase().includes(q));
+  const belum = l.filter(p => !p.dijumpai), sudah = l.filter(p => p.dijumpai);
+  const baris = p => `<li><div class="nama">${esc(p.nama)}</div>
+    <div class="info">${esc(p.kampung || '')}${p.kampung ? ', ' : ''}IC hujung ${esc(p.ic4)}${p.alamat ? ', ' + esc(p.alamat) : ''}</div>
+    ${p.dijumpai ? `<span class="lencana hijau">Dijumpai ${p.olehSaya ? 'oleh anda' : 'oleh ' + esc(p.oleh)} ${tarikh(p.dijumpai)}</span>` : ''}
+    <div class="aksi">
+      ${!p.dijumpai ? `<button class="btn kecil" onclick="jumpa('${p.id}')">Tanda dah jumpa</button>` : ''}
+      <a class="btn kecil ${p.dijumpai ? '' : 'kedua'}" href="${esc(D.link)}" target="_blank" rel="noopener">Order untuk dia</a>
+      ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Saya ${D.aff.nama}, wakil KOMASKU. Bantuan RM200 boleh dibelanjakan di KOMASKU dan anda dapat tambahan RM${D.kadar.bonus} setiap bulan. Pilih barang di sini: ${D.link}`))}">WhatsApp</a>` : ''}
+      ${p.dijumpai && p.olehSaya ? `<button class="btn kecil bahaya" onclick="jumpa('${p.id}', true)">Batal tanda</button>` : ''}
+    </div></li>`;
+  $('cPros1').textContent = belum.length + ' orang'; $('cPros2').textContent = sudah.length + ' orang';
+  $('lPros1').innerHTML = belum.length ? belum.slice(0, 200).map(baris).join('') : '<li class="kosong">Tiada.</li>';
+  $('lPros2').innerHTML = sudah.length ? sudah.map(baris).join('') : '<li class="kosong">Tiada.</li>';
+}
+$('cariPros').addEventListener('input', lukisProspek);
+
+function jumpa(id, batal) {
+  const p = D.prospek.find(x => x.id === id);
+  if (batal) return api('fJumpa', { k: K, pelanggan_id: id, batal: 1 }).then(() => { toast('Tanda dibatalkan'); muat(true); }).catch(e => toast(e.message));
+  buka(`<h2>Dah jumpa ${esc(p.nama)}?</h2>
+    <p>Admin akan dimaklumkan.</p>
+    <div class="medan"><label for="nJ">Nota (pilihan)</label><input class="input" id="nJ" placeholder="Contoh: minta datang semula Jumaat"></div>
+    <div id="eJ"></div>
+    <div class="deret"><button class="btn" id="okJ">Ya, tanda dah jumpa</button><button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  $('okJ').onclick = async () => {
+    $('okJ').disabled = true;
+    try { await api('fJumpa', { k: K, pelanggan_id: id, nota: $('nJ').value }); tutup(); toast('Ditanda dah jumpa'); muat(true); }
+    catch (e) { $('eJ').innerHTML = ralatHtml(e.message); $('okJ').disabled = false; }
+  };
+}
+
+function borangProspek() {
+  buka(`<h2>Tambah nama asnaf</h2>
+    <div class="medan"><label for="pN">Nama penuh</label><input class="input" id="pN"></div>
+    <div class="medan"><label for="pI">No. IC</label><input class="input" id="pI" inputmode="numeric" placeholder="12 nombor"></div>
+    <div class="medan"><label for="pK">Kampung</label><input class="input" id="pK"></div>
+    <div class="medan"><label for="pT">Telefon (pilihan)</label><input class="input" id="pT" inputmode="tel"></div>
+    <div class="medan"><label for="pA">Alamat (pilihan)</label><input class="input" id="pA"></div>
+    <div id="eP"></div>
+    <div class="deret"><button class="btn" id="okP">Simpan</button><button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  $('okP').onclick = async () => {
+    $('okP').disabled = true;
+    try {
+      await api('fProspek', { k: K, data: { nama: $('pN').value, ic: $('pI').value, kampung: $('pK').value, telefon: $('pT').value, alamat: $('pA').value } });
+      tutup(); toast('Nama ditambah'); muat(true);
+    } catch (e) { $('eP').innerHTML = ralatHtml(e.message); $('okP').disabled = false; }
+  };
+}
+
+/* ---------- Rangkaian ---------- */
+function lukisRangkaian() {
+  $('cDown').textContent = D.downline.length + ' orang';
+  $('lDown').innerHTML = D.downline.length ? D.downline.map(w => `<li><div class="nama">${esc(w.nama)}${w.kod ? ` <span class="kod">${esc(w.kod)}</span>` : ''}</div>
+    <div class="info">${w.status === 'MENUNGGU' ? 'Menunggu kelulusan KOMASKU' : `${w.pelanggan} pelanggan, ${w.order} order bulan ini, jualan ${rm(w.jualan)}`}</div>
+    ${w.komisenSaya ? `<span class="lencana hijau">Komisen anda bulan ini ${rm(w.komisenSaya)}</span>` : ''}</li>`).join('')
+    : '<li class="kosong">Belum ada wakil di bawah anda.</li>';
+}
+
+/* ---------- Kongsi ---------- */
+function kongsi(tajuk, teks) {
+  buka(`<h2>${esc(tajuk)}</h2>
+    <p class="kotak-teks">${esc(teks).replace(/\n/g, '<br>')}</p>
+    <a class="btn penuh" target="_blank" rel="noopener" href="${esc(waLink('', teks))}">Kongsi di WhatsApp</a>
+    <button class="btn kedua penuh" style="margin-top:.6rem" onclick='salinTeks(${JSON.stringify(teks)}, "Mesej disalin")'>Salin mesej</button>
+    <button class="btn kedua penuh" style="margin-top:.6rem" onclick="tutup()">Tutup</button>`);
+}
+$('btnKongsi').addEventListener('click', () => kongsi('Kongsi link kedai',
+  `Assalamualaikum. Bantuan RM200 dalam IC boleh dibelanjakan di KOMASKU, kedai koperasi Kampung Kundur. Anda dapat tambahan barang RM${D.kadar.bonus} setiap bulan.\n\nPilih barang di sini, kami hantar ke rumah:\n${D.link}\n\nAtau datang ke kedai dan tunjuk kod: ${D.aff.kod}`));
+$('btnDaftar').addEventListener('click', () => kongsi('Kongsi link daftar wakil',
+  `Assalamualaikum. Jom jadi wakil KOMASKU dan bantu jiran belanja bantuan mereka di kedai koperasi kampung. Daftar di sini:\n${D.linkDaftar}`));
+
+/* ---------- Tab & Telegram ---------- */
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  ['order', 'pelanggan', 'prospek', 'rangkaian', 'komisen'].forEach(t => $('tab-' + t).hidden = b.dataset.tab !== t);
+});
+$('btnTgSemak').addEventListener('click', async e => {
+  e.target.disabled = true;
+  try {
+    const r = await api('fTelegram', { k: K });
+    if (r.telegram) { toast('Telegram disambung'); D.aff.telegram = true; lukis(); }
+    else toast('Belum disambung. Buka Telegram, tekan Start, kemudian cuba lagi.');
+  } catch (err) { toast(err.message); }
+  e.target.disabled = false;
+});
+
+muat();
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Daftar wakil KOMASKU</title>
+<meta property="og:title" content="Daftar sebagai wakil KOMASKU">
+<meta property="og:description" content="Bawa jiran belanja di KOMASKU. Isi borang ringkas ini.">
+<meta property="og:image" content="https://komaskumart.com/og.png">
+<meta name="theme-color" content="#1b4d2e">
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+</head>
+<body class="app">
+<header class="app-kepala"><div class="wrap"><b>KOMASKU</b><span>Daftar wakil</span></div></header>
+<main>
+  <div class="wrap" style="max-width:32rem">
+    <section id="borangSek">
+      <h1 style="font-size:1.7rem;margin:.5rem 0 .75rem">Daftar sebagai wakil KOMASKU</h1>
+      <p id="dariRef" hidden>Anda didaftarkan di bawah <b id="namaUp"></b>.</p>
+      <p>Sebagai wakil, anda bantu jiran dan kenalan belanja bantuan mereka di KOMASKU. Anda akan dapat kod sendiri dan link untuk dikongsi.</p>
+      <form class="panel" id="borang" novalidate>
+        <div class="medan"><label for="nama">Nama penuh</label><input class="input" id="nama" autocomplete="name"></div>
+        <div class="medan"><label for="ic">No. kad pengenalan</label><input class="input" id="ic" inputmode="numeric" placeholder="12 nombor"></div>
+        <div class="medan"><label for="tel">No. telefon WhatsApp</label><input class="input" id="tel" inputmode="tel" autocomplete="tel"></div>
+        <div id="ralat"></div>
+        <button class="btn penuh" id="btn">Hantar permohonan</button>
+      </form>
+    </section>
+    <section id="siapSek" hidden>
+      <h1 style="font-size:1.7rem;margin:.5rem 0 .75rem">Permohonan diterima</h1>
+      <p>KOMASKU akan menyemak permohonan anda. Bila diluluskan, anda akan terima link dashboard dan kod wakil melalui WhatsApp.</p>
+      <a class="btn kedua" href="index.html">Lihat barang KOMASKU</a>
+    </section>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const REF = (new URLSearchParams(location.search).get('ref') || '').toUpperCase();
+if (REF) api('infoRef', { ref: REF }).then(r => { if (r.ref) { $('namaUp').textContent = r.nama; $('dariRef').hidden = false; } }).catch(() => {});
+
+$('borang').addEventListener('submit', async e => {
+  e.preventDefault();
+  const d = { nama: $('nama').value.trim(), ic: $('ic').value, telefon: $('tel').value, ref: REF };
+  const ralat = !d.nama ? 'Isi nama penuh.' : d.ic.replace(/\D/g, '').length !== 12 ? 'No. kad pengenalan mesti 12 nombor.'
+    : d.telefon.replace(/\D/g, '').length < 9 ? 'Isi nombor telefon yang betul.' : '';
+  if (ralat) { $('ralat').innerHTML = ralatHtml(ralat); return; }
+  $('btn').disabled = true; $('ralat').innerHTML = '';
+  try { await api('daftar', d); $('borangSek').hidden = true; $('siapSek').hidden = false; }
+  catch (err) { $('ralat').innerHTML = ralatHtml(err.message); $('btn').disabled = false; }
+});
+</script>
+</body>
+</html>

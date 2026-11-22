@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kaunter – KOMASKU</title>
+<meta name="theme-color" content="#1b4d2e">
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+<style>
+  .hasil-cari { list-style: none; padding: 0; margin: .75rem 0 0; }
+  .hasil-cari button { width: 100%; text-align: left; background: var(--putih); border: 2px solid var(--garis); border-radius: 6px; padding: .75rem 1rem; margin-bottom: .5rem; font: 1.05rem var(--f); cursor: pointer; color: var(--dakwat); }
+  .hasil-cari button:hover, .hasil-cari button:focus-visible { border-color: var(--hijau); }
+  .hasil-cari .info { font-size: .92rem; color: var(--kelabu); }
+  .bonus-besar { background: var(--kunyit); color: var(--dakwat); font-weight: 700; font-size: 1.25rem; padding: 1rem; border-radius: 6px; text-align: center; margin: 1rem 0; }
+</style>
+</head>
+<body class="app">
+<header class="app-kepala">
+  <div class="wrap"><b>KOMASKU Kaunter</b><button class="btn kecil kedua" id="keluar" hidden>Keluar</button></div>
+</header>
+
+<main>
+  <div class="wrap">
+    <form class="panel" id="login" hidden>
+      <h2>Log masuk kaunter</h2>
+      <label for="pin">PIN kaunter</label>
+      <input class="input" id="pin" type="password" inputmode="numeric" autocomplete="off" required>
+      <div id="ralatLogin"></div>
+      <button class="btn penuh" style="margin-top:1rem">Masuk</button>
+    </form>
+
+    <div id="kerja" hidden>
+      <div class="tab" role="tablist" id="tabs">
+        <button role="tab" aria-selected="true" data-tab="jual">Jualan kedai</button>
+        <button role="tab" aria-selected="false" data-tab="order">Order online <span id="bilOrder"></span></button>
+      </div>
+
+      <section id="tab-jual">
+        <form class="panel" id="borangCari">
+          <label for="cari">Cari pelanggan</label>
+          <input class="input" id="cari" autocomplete="off" placeholder="Nama, 4 nombor akhir IC, atau IC penuh">
+          <button class="btn penuh" style="margin-top:.75rem">Cari</button>
+          <ul class="hasil-cari" id="hasilCari"></ul>
+        </form>
+        <div id="jualan"></div>
+
+        <div class="kumpulan-tajuk"><h3>Jualan hari ini</h3><span id="bilHari"></span></div>
+        <ul class="orang" id="hariIni"></ul>
+      </section>
+
+      <section id="tab-order" hidden>
+        <ul class="orang" id="senaraiOrder"></ul>
+      </section>
+    </div>
+  </div>
+</main>
+
+<dialog id="dlg"><div id="dlgIsi"></div></dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+let PIN = ambil('kmk_kpin'), BONUS = KOMASKU.BONUS, ORDER = [], HASIL = [];
+
+function paparHariIni(list) {
+  $('bilHari').textContent = list.length + ' jualan';
+  $('hariIni').innerHTML = list.length ? list.map(x => `<li><div class="baris-atas"><span class="nama">${esc(x.nama)}</span><span class="kod">${esc(x.no)}</span></div>
+    <div class="info">${x.saluran === 'kedai' ? 'Kedai' : 'Online'}, ${esc(x.masa)}, ${rm(x.jumlah)}${x.bonus ? ', tambahan ' + rm(x.bonus) : ''}</div></li>`).join('')
+    : '<li class="kosong">Belum ada jualan hari ini.</li>';
+}
+
+async function masuk(pin) {
+  const r = await api('kLogin', { pin });
+  PIN = pin; simpan('kmk_kpin', pin); BONUS = r.bonus;
+  $('login').hidden = true; $('kerja').hidden = false; $('keluar').hidden = false;
+  paparHariIni(r.hariIni); muatOrder(); $('cari').focus();
+}
+
+$('login').addEventListener('submit', async e => {
+  e.preventDefault(); $('ralatLogin').innerHTML = '';
+  try { await masuk($('pin').value.trim()); } catch (err) { $('ralatLogin').innerHTML = ralatHtml(err.message); }
+});
+$('keluar').addEventListener('click', () => { simpan('kmk_kpin', null); location.reload(); });
+
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  $('tab-jual').hidden = b.dataset.tab !== 'jual'; $('tab-order').hidden = b.dataset.tab !== 'order';
+  if (b.dataset.tab === 'order') muatOrder();
+});
+
+/* ---------- Jualan kedai ---------- */
+$('borangCari').addEventListener('submit', async e => {
+  e.preventDefault();
+  const q = $('cari').value.trim();
+  $('jualan').innerHTML = '';
+  $('hasilCari').innerHTML = '<li class="memuat">Mencari…</li>';
+  try {
+    const r = await api('kCari', { pin: PIN, q });
+    HASIL = r.hasil;
+    $('hasilCari').innerHTML = r.hasil.map((p, i) => `<li><button type="button" onclick="pilih(${i})">
+      <b>${esc(p.nama)}</b><div class="info">IC hujung ${esc(p.ic4)}${p.kampung ? ', ' + esc(p.kampung) : ''}${p.affiliate ? ', pelanggan ' + esc(p.affiliate) : ', belum ada wakil'}</div></button></li>`).join('')
+      + (r.icBaru ? `<li><button type="button" onclick="pelangganBaru('${r.icBaru}')"><b>Pelanggan baharu</b><div class="info">Daftar IC ${esc(r.icBaru)}</div></button></li>`
+         : !r.hasil.length ? '<li class="kosong">Tiada padanan. Untuk pelanggan baharu, taip 12 nombor IC penuh.</li>' : '');
+  } catch (err) { $('hasilCari').innerHTML = `<li>${ralatHtml(err.message)}</li>`; }
+});
+
+function borangJual(p, baru) {
+  $('hasilCari').innerHTML = '';
+  $('jualan').innerHTML = `<form class="panel" id="borangJual">
+    <h2>${baru ? 'Pelanggan baharu' : esc(p.nama)}</h2>
+    ${baru ? `<div class="medan"><label for="jNama">Nama penuh</label><input class="input" id="jNama"></div>
+              <p class="kecil">IC: ${esc(p.ic)}</p>` : `<p class="kecil">IC hujung ${esc(p.ic4)}${p.kampung ? ', ' + esc(p.kampung) : ''}</p>`}
+    ${p.affiliate ? `<p>Pelanggan tetap <b>${esc(p.affiliate)}</b>. Tak perlu kod.</p>`
+      : `<div class="medan"><label for="jKod">Kod wakil (jika ada)</label><input class="input kod" id="jKod" autocapitalize="characters" placeholder="Contoh: SALMAN"></div>`}
+    ${p.affiliate ? (p.bonusLayak ? `<div class="bonus-besar">Layak tambahan barang RM${BONUS} bulan ini</div>` : `<p class="nota">Tambahan RM${BONUS} sudah diterima bulan ini.</p>`) : ''}
+    <div class="medan"><label for="jJum">Jumlah ditolak daripada IC (RM)</label><input class="input" id="jJum" inputmode="decimal" value="200"></div>
+    <div class="medan"><label for="jResit">No. resit terminal (pilihan)</label><input class="input" id="jResit"></div>
+    <div id="eJ"></div>
+    <button class="btn penuh" id="okJ">Rekod jualan</button>
+    <button class="btn kedua penuh" type="button" style="margin-top:.6rem" onclick="$('jualan').innerHTML='';$('cari').focus()">Batal</button>
+  </form>`;
+  $('borangJual').addEventListener('submit', async e => {
+    e.preventDefault(); $('okJ').disabled = true; $('eJ').innerHTML = '';
+    const data = { pin: PIN, jumlah: $('jJum').value, resit: $('jResit').value, kod: $('jKod') ? $('jKod').value.trim() : '' };
+    if (baru) Object.assign(data, { ic: p.ic, nama: $('jNama').value }); else data.pelanggan_id = p.id;
+    try {
+      const r = await api('kJual', data);
+      $('jualan').innerHTML = `<div class="panel"><h2>Jualan ${esc(r.no)} direkod</h2>
+        ${r.bonus ? `<div class="bonus-besar">Beri tambahan barang RM${r.bonus}</div>` : '<p>Tiada tambahan untuk jualan ini.</p>'}
+        ${r.affiliate ? `<p>Pelanggan tetap ${esc(r.affiliate)}.</p>` : ''}
+        <button class="btn penuh" type="button" onclick="$('jualan').innerHTML='';$('cari').value='';$('cari').focus()">Pelanggan seterusnya</button></div>`;
+      const l = await api('kLogin', { pin: PIN }); paparHariIni(l.hariIni);
+    } catch (err) { $('eJ').innerHTML = ralatHtml(err.message); $('okJ').disabled = false; }
+  });
+}
+function pilih(i) { borangJual(HASIL[i]); }
+function pelangganBaru(ic) { borangJual({ ic }, true); }
+
+/* ---------- Order online ---------- */
+async function muatOrder() {
+  try { ORDER = (await api('kOrder', { pin: PIN })).order; lukisOrder(); } catch (e) { toast(e.message); }
+}
+
+function lukisOrder() {
+  $('bilOrder').textContent = ORDER.length ? '(' + ORDER.length + ')' : '';
+  $('senaraiOrder').innerHTML = ORDER.length ? ORDER.map(o => `<li>
+    <div class="baris-atas"><span class="nama">${esc(o.nama)}</span><span class="kod">${esc(o.no)}</span></div>
+    <div class="info">${o.kaedah === 'hantar' ? 'Hantar: ' + esc(o.alamat) : 'Ambil di kedai'}, ${tarikh(o.masa, 1)}${o.affiliate ? ', wakil ' + esc(o.affiliate) : ''}</div>
+    <div class="info">IC hujung ${esc(o.ic4)}, ${esc(o.telefon)}</div>
+    <ul style="margin:.5rem 0;padding-left:1.2rem">${o.item.map(i => `<li>${i.qty} × ${esc(i.nama)} <span class="kecil">(${rm(i.harga * i.qty)})</span></li>`).join('')}</ul>
+    <div class="info">Jumlah ${rm(o.subtotal)}${o.bonus ? `, tambahan &minus;${rm(o.bonus)}` : ''}, <b>tolak IC ${rm(o.jumlah_bayar)}</b></div>
+    ${o.nota ? `<div class="info">Nota: ${esc(o.nota)}</div>` : ''}
+    <span class="lencana ${o.status === 'BARU' ? '' : 'hijau'}">${LABEL_STATUS[o.status]}</span>
+    <div class="aksi">
+      ${o.status === 'BARU' ? `<button class="btn kecil" onclick="tukar('${o.id}','DIBAYAR')">Sahkan bayaran IC</button>` : ''}
+      ${o.status === 'DIBAYAR' ? `<button class="btn kecil" onclick="tukar('${o.id}','DISIAPKAN')">Tanda disiapkan</button>` : ''}
+      ${o.status !== 'BARU' ? `<button class="btn kecil kedua" onclick="tukar('${o.id}','DIHANTAR')">${o.kaedah === 'ambil' ? 'Sudah diambil' : 'Sudah dihantar'}</button>` : ''}
+      <button class="btn kecil bahaya" onclick="tukar('${o.id}','BATAL')">Batal</button>
+    </div></li>`).join('') : '<li class="kosong">Tiada order online yang perlu diuruskan.</li>';
+}
+
+function tukar(id, status) {
+  const o = ORDER.find(x => x.id === id);
+  const tajuk = { DIBAYAR: 'Sahkan bayaran IC', DISIAPKAN: 'Tanda disiapkan', DIHANTAR: o.kaedah === 'ambil' ? 'Tanda sudah diambil' : 'Tanda sudah dihantar', BATAL: 'Batal order' }[status];
+  buka(`<h2>${tajuk}: ${esc(o.no)}</h2>
+    ${status === 'DIBAYAR' ? `<p>Tolak <b>${rm(o.jumlah_bayar)}</b> daripada IC ${esc(o.nama)} di terminal.</p>
+      <div class="medan"><label for="tR">No. resit terminal (pilihan)</label><input class="input" id="tR"></div>` : ''}
+    ${status === 'BATAL' ? `<p>Stok barang akan dipulangkan.${o.status !== 'BARU' ? ' Order ini sudah dibayar: uruskan pemulangan bayaran secara manual.' : ''}</p>
+      <div class="medan"><label for="tS">Sebab</label><input class="input" id="tS"></div>` : ''}
+    <div id="eT"></div>
+    <div class="deret"><button class="btn ${status === 'BATAL' ? 'bahaya' : ''}" id="okT">${tajuk}</button><button class="btn kedua" onclick="tutup()">Kembali</button></div>`);
+  $('okT').onclick = async () => {
+    $('okT').disabled = true;
+    try {
+      const r = await api('kStatus', { pin: PIN, order_id: id, status, resit: $('tR') ? $('tR').value : '', sebab: $('tS') ? $('tS').value : '' });
+      ORDER = r.order; lukisOrder(); tutup(); toast('Dikemas kini');
+    } catch (e) { $('eT').innerHTML = ralatHtml(e.message); $('okT').disabled = false; }
+  };
+}
+
+if (PIN) masuk(PIN).catch(() => { simpan('kmk_kpin', null); $('login').hidden = false; });
+else $('login').hidden = false;
+</script>
+</body>
+</html>
