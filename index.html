@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOMASKU Mart – Belanja bantuan RM200 anda, dapat RM10 lagi</title>
-<meta name="description" content="Kedai runcit koperasi Kampung Kundur. Belanja bantuan RM200 dalam IC di KOMASKU, di kedai atau order untuk dihantar, dan dapat tambahan barang RM10 setiap bulan.">
+<meta name="description" content="Kedai runcit koperasi Kampung Kundur. Belanja bantuan RM200 dalam IC di KOMASKU, di kedai atau order untuk dihantar, dan terima tunai RM10 setiap bulan.">
 <meta property="og:title" content="Belanja bantuan RM200 anda di KOMASKU, dapat RM10 lagi">
-<meta property="og:description" content="Pilih barang dapur di sini atau datang ke kedai. Tambahan barang RM10 setiap bulan.">
+<meta property="og:description" content="Pilih barang dapur di sini atau datang ke kedai. Terima tunai RM10 setiap bulan.">
 <meta property="og:image" content="https://komaskumart.com/og.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#1b4d2e">
@@ -53,16 +53,16 @@
     <div class="wrap">
       <div>
         <h1>Belanja bantuan RM200 anda di KOMASKU, dapat RM10 lagi.</h1>
-        <p class="lede">Pilih barang di sini dan kami hantar ke rumah, atau datang terus ke kedai. Tambahan barang RM10 untuk anda setiap bulan.</p>
+        <p class="lede">Pilih barang di sini dan kami hantar ke rumah, atau datang terus ke kedai. Anda terima tunai RM10 setiap bulan.</p>
         <div class="deret"><a class="btn" href="#barang">Pilih barang</a><a class="btn kedua" href="#cara">Cara belanja</a></div>
       </div>
       <div class="slot" aria-label="Contoh resit: bantuan RM200 tambah RM10 menjadi RM210">
         <div class="resit-bayang"><div class="resit" aria-hidden="true">
           <div class="tengah tajuk">KOMASKU</div><div class="tengah kaki">Kampung Kundur</div><hr class="putus">
-          <div class="baris"><span>Bantuan dalam IC</span><span>200.00</span></div>
-          <div class="baris tambah"><span>Tambahan KOMASKU</span><span>10.00</span></div><hr class="putus">
-          <div class="baris jumlah"><span>Boleh belanja</span><span>RM210.00</span></div><hr class="putus">
-          <div class="tengah kaki">Tambahan diberi setiap bulan.</div>
+          <div class="baris"><span>Barang (bayar guna IC)</span><span>200.00</span></div>
+          <div class="baris tambah"><span>Tunai untuk anda</span><span>10.00</span></div><hr class="putus">
+          <div class="baris jumlah"><span>Anda dapat</span><span>RM210.00</span></div><hr class="putus">
+          <div class="tengah kaki">Tunai RM10 setiap bulan.</div>
         </div></div>
       </div>
     </div>
@@ -103,14 +103,14 @@
       <div class="dua-cara">
         <div>
           <h3>Datang ke kedai</h3>
-          <p>Bawa kad pengenalan. Kali pertama, tunjuk kod wakil anda di kaunter. Selepas itu tak perlu tunjuk lagi, dan anda tetap dapat tambahan RM10 setiap bulan.</p>
+          <p>Bawa kad pengenalan. Kali pertama, tunjuk kod wakil anda di kaunter. Selepas itu tak perlu tunjuk lagi, dan anda tetap terima tunai RM10 setiap bulan.</p>
         </div>
         <div>
           <h3>Order di laman ini</h3>
           <p>Pilih barang, isi nama dan IC, kemudian hantar order. Barang dihantar ke rumah atau sedia untuk diambil. Bayaran ditolak daripada bantuan IC semasa barang sampai.</p>
         </div>
       </div>
-      <p class="nota">Tambahan barang RM10 diberi sekali sebulan kepada pelanggan yang didaftarkan oleh wakil KOMASKU.</p>
+      <p class="nota">Tunai RM10 diberi sekali sebulan kepada pelanggan yang didaftarkan oleh wakil KOMASKU, semasa barang diambil atau dihantar.</p>
     </div>
   </section>
 
@@ -125,9 +125,9 @@
         <details><summary>Saya tak tahu kod wakil.</summary>
           <p>WhatsApp kami atau tanya di kaunter. Kami akan bantu daftarkan anda dengan wakil di kawasan anda.</p></details>
         <details><summary>Kalau tiada kod, boleh belanja di KOMASKU?</summary>
-          <p>Boleh. Bantuan RM200 dalam IC tetap boleh digunakan di sini. Tambahan RM10 hanya untuk pelanggan yang didaftarkan oleh wakil.</p></details>
+          <p>Boleh. Bantuan RM200 dalam IC tetap boleh digunakan di sini. Tunai RM10 hanya untuk pelanggan yang didaftarkan oleh wakil.</p></details>
         <details><summary>Perlu tunjuk kod setiap bulan?</summary>
-          <p>Tidak. Kod hanya perlu sekali. Selepas itu, nama anda sudah ada dalam sistem dan tambahan RM10 diberi setiap bulan.</p></details>
+          <p>Tidak. Kod hanya perlu sekali. Selepas itu, nama anda sudah ada dalam sistem dan tunai RM10 diberi setiap bulan.</p></details>
       </div>
     </div>
   </section>
@@ -162,27 +162,47 @@
 
 <dialog id="dlg" class="dlg-troli"><div id="dlgIsi"></div></dialog>
 
+<!-- Chatbot semak kelayakan -->
+<button class="chat-buka" id="chatBuka" type="button" aria-label="Buka pembantu KOMASKU" aria-controls="chatPanel" aria-expanded="false">
+  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm3 6a1.3 1.3 0 1 0 0 2.6A1.3 1.3 0 0 0 7 10Zm5 0a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6Zm5 0a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6Z"/></svg>
+  <span>Semak kelayakan</span>
+</button>
+<section class="chat-panel" id="chatPanel" hidden aria-label="Pembantu KOMASKU">
+  <header class="chat-kepala">
+    <div><b>Pembantu KOMASKU</b><span>Semak kelayakan tunai RM10</span></div>
+    <button type="button" id="chatTutup" aria-label="Tutup pembantu">&times;</button>
+  </header>
+  <div class="chat-mesej" id="chatMesej" aria-live="polite"></div>
+  <div class="chat-pilihan" id="chatPilihan"></div>
+  <form class="chat-input" id="chatBorang" hidden>
+    <label class="sr" for="chatIc">Nombor IC</label>
+    <input id="chatIc" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="Contoh: 650312045678">
+    <button class="btn kecil" type="submit">Hantar</button>
+  </form>
+</section>
+
 <!-- Popup Claim RM10 -->
 <dialog id="dlgClaim" class="dlg-claim" aria-labelledby="claimTajuk">
   <button class="claim-tutup" type="button" aria-label="Tutup" data-tutup-claim>&times;</button>
   <div class="claim-kepala">
     <span class="claim-label">Untuk penerima bantuan zakat</span>
-    <h2 id="claimTajuk" tabindex="-1" autofocus>Dapatkan <span>tambahan barang RM10</span> setiap bulan</h2>
+    <h2 id="claimTajuk" tabindex="-1" autofocus>Terima <span>tunai RM10</span> setiap bulan</h2>
     <p>Belanja bantuan RM200 dalam IC anda di KOMASKU, koperasi Kampung Kundur.</p>
   </div>
   <div class="claim-isi">
     <ul class="claim-senarai">
-      <li><b>Tambahan barang RM10</b> setiap bulan</li>
+      <li><b>Tunai RM10</b> setiap bulan</li>
       <li>Barang boleh <b>dihantar ke rumah</b></li>
-      <li><b>Bayar guna bantuan dalam IC</b>, tiada tunai</li>
+      <li><b>Bayar guna bantuan dalam IC</b>, tak perlu keluar duit</li>
     </ul>
     <p class="claim-wakil" id="claimWakil" hidden></p>
+    <button class="btn penuh btn-semak" type="button" id="claimSemak">Semak kelayakan saya</button>
     <a class="btn btn-wa penuh" id="claimWa" href="#" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.2.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.2-.2-.4-.3Z"/></svg>
-      Claim di WhatsApp
+      Tanya di WhatsApp
     </a>
     <button class="claim-lihat" type="button" data-tutup-claim data-ke="barang">Lihat barang dulu</button>
-    <p class="claim-nota">Tambahan RM10 diberi sekali sebulan kepada pelanggan yang didaftarkan oleh wakil KOMASKU.</p>
+    <p class="claim-nota">Tunai RM10 diberi sekali sebulan kepada pelanggan yang didaftarkan oleh wakil KOMASKU.</p>
   </div>
 </dialog>
 
@@ -195,7 +215,7 @@ const IKON_KOSONG = '<svg viewBox="0 0 48 48" width="44" height="44" aria-hidden
 /* ---------- Rujukan wakil (?ref=KOD) ---------- */
 const q = new URLSearchParams(location.search);
 if (q.get('ref')) simpan('kmk_ref', q.get('ref').toUpperCase(), true);
-const REF = ambil('kmk_ref', true) || '';
+let REF = ambil('kmk_ref', true) || '';
 if (REF) api('infoRef', { ref: REF }).then(r => {
   if (r.ref) { $('namaRef').textContent = r.nama; $('jalurRef').hidden = false; } else simpan('kmk_ref', null, true);
 }).catch(() => {});
@@ -424,7 +444,7 @@ function lukisTroli() {
   }).join('');
   $('ringkasTroli').innerHTML = `
     <div class="jumlah-troli besar"><span>Jumlah</span><b>${rm(jumlahTroli())}</b></div>
-    <p class="kecil">Tambahan RM${BONUS} ditolak daripada jumlah ini jika anda layak bulan ini. Bayaran ditolak daripada bantuan IC semasa barang sampai.</p>
+    <p class="kecil">Jumlah ini ditolak daripada bantuan IC semasa barang sampai. Jika layak bulan ini, anda terima tunai RM${BONUS} daripada wakil atau staf KOMASKU.</p>
     ${TERIMA ? `<button class="btn penuh" type="button" onclick="bukaCheckout()">Teruskan</button>`
              : '<div class="mesej ralat">Order online ditutup sementara. Sila datang ke kedai.</div>'}`;
 }
@@ -433,8 +453,8 @@ function bukaCheckout() {
   buka(`<div class="dlg-kepala"><h2>Maklumat pembeli</h2><button class="btn kecil kedua" type="button" onclick="bukaTroli()">Kembali</button></div>
     <form id="borangOrder" novalidate>
       <div class="medan"><label for="oNama">Nama penuh (seperti dalam IC)</label><input class="input" id="oNama" autocomplete="name"></div>
-      <div class="medan"><label for="oIc">No. kad pengenalan</label><input class="input" id="oIc" inputmode="numeric" placeholder="Contoh: 650312045678">
-        <p class="kecil" style="margin:.3rem 0 0">Untuk semak bantuan dan tambahan RM${BONUS}.</p></div>
+      <div class="medan"><label for="oIc">No. kad pengenalan</label><input class="input" id="oIc" inputmode="numeric" placeholder="Contoh: 650312045678" value="${esc(ambil('kmk_ic') || '')}">
+        <p class="kecil" style="margin:.3rem 0 0">Untuk semak bantuan dan tunai RM${BONUS}.</p></div>
       <div class="medan"><label for="oTel">No. telefon</label><input class="input" id="oTel" inputmode="tel" autocomplete="tel"></div>
       <fieldset class="pilihan"><legend>Cara terima barang</legend>
         <label><input type="radio" name="kaedah" value="hantar" checked> Hantar ke rumah</label>
@@ -471,7 +491,7 @@ async function hantarOrder(e) {
     buka(`<h2>Order diterima</h2><p>Nombor order anda:</p>
       <div class="kod-besar">${esc(r.no)}</div>
       <div class="jumlah-troli"><span>Jumlah barang</span><b>${rm(r.subtotal)}</b></div>
-      ${r.bonus ? `<div class="jumlah-troli tambah"><span>Tambahan KOMASKU</span><b>&minus;${rm(r.bonus)}</b></div>` : ''}
+      ${r.bonus ? `<div class="jumlah-troli tambah"><span>Tunai untuk anda</span><b>${rm(r.bonus)}</b></div>` : ''}
       <div class="jumlah-troli besar"><span>Ditolak daripada IC</span><b>${rm(r.jumlah_bayar)}</b></div>
       <p>${r.kaedah === 'hantar' ? 'Wakil atau staf KOMASKU akan menghubungi anda sebelum menghantar barang. Sediakan kad pengenalan semasa barang sampai.'
         : 'Kami akan menghubungi anda bila barang sedia. Bawa kad pengenalan semasa mengambil barang.'}</p>
@@ -490,7 +510,7 @@ function bukaClaim() {
   const wakil = $('namaRef').textContent;
   $('claimWakil').hidden = !REF || !wakil;
   if (wakil) $('claimWakil').innerHTML = `Wakil anda: <b>${esc(wakil)}</b> (kod ${esc(REF)})`;
-  const mesej = 'Assalamualaikum KOMASKU. Saya nak claim tambahan barang RM10.\n\nNama: \nKampung: ' +
+  const mesej = 'Assalamualaikum KOMASKU. Saya nak claim tunai RM10.\n\nNama: \nKampung: ' +
     (REF ? '\nKod wakil: ' + REF : '');
   $('claimWa').href = 'https://wa.me/' + KOMASKU.WHATSAPP + '?text=' + encodeURIComponent(mesej);
   if (!d.open) d.showModal();
@@ -507,11 +527,134 @@ $('dlgClaim').addEventListener('click', e => {
   if (e.target === $('dlgClaim')) tutupClaim();
 });
 $('claimWa').addEventListener('click', () => setTimeout(() => $('dlgClaim').close(), 300));
+$('claimSemak').addEventListener('click', () => { $('dlgClaim').close(); bukaChat(true); });
 if (location.hash === '#claim') bukaClaim();
 // Muncul sendiri 3 saat selepas masuk, sekali dalam 24 jam
 else {
   const akhir = Number(ambil('kmk_claim', true)) || 0;
   if (Date.now() - akhir > 24 * 3600 * 1000) setTimeout(() => { if (!$('dlg').open) bukaClaim(); }, 3000);
+}
+
+/* ---------- Chatbot semak kelayakan ---------- */
+const chat = { mula: false };
+function bukaChat(terusYa) {
+  $('chatPanel').hidden = false; $('chatBuka').setAttribute('aria-expanded', 'true');
+  document.body.classList.add('chat-terbuka');
+  if (!chat.mula) { chat.mula = true; langkahMula(terusYa); }
+  else if (terusYa) langkahYa();
+}
+function tutupChat() {
+  $('chatPanel').hidden = true; $('chatBuka').setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('chat-terbuka');
+}
+$('chatBuka').addEventListener('click', () => $('chatPanel').hidden ? bukaChat() : tutupChat());
+$('chatTutup').addEventListener('click', tutupChat);
+
+function bot(html) {
+  const el = document.createElement('div'); el.className = 'cm bot'; el.innerHTML = html;
+  $('chatMesej').appendChild(el); $('chatMesej').scrollTop = $('chatMesej').scrollHeight;
+}
+function saya(teks) {
+  const el = document.createElement('div'); el.className = 'cm saya'; el.textContent = teks;
+  $('chatMesej').appendChild(el); $('chatMesej').scrollTop = $('chatMesej').scrollHeight;
+}
+function pilihan(list) {
+  $('chatBorang').hidden = true;
+  $('chatPilihan').innerHTML = list.map((p, i) => `<button type="button" class="${p.utama ? 'utama' : ''}" data-i="${i}">${esc(p.teks)}</button>`).join('');
+  $('chatMesej').scrollTop = $('chatMesej').scrollHeight;
+  $('chatPilihan').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const p = list[Number(b.dataset.i)];
+    if (!p.senyap) saya(p.teks);
+    $('chatPilihan').innerHTML = '';
+    p.buat();
+  };
+}
+const waKomasku = teks => 'https://wa.me/' + KOMASKU.WHATSAPP + '?text=' + encodeURIComponent(teks);
+
+function langkahMula(terusYa) {
+  bot('Assalamualaikum. Saya pembantu KOMASKU.');
+  if (terusYa) return langkahYa();
+  bot('Adakah anda <b>penerima bantuan zakat RM200</b> dalam IC?');
+  pilihan([{ teks: 'Ya, saya penerima', utama: 1, buat: langkahYa }, { teks: 'Tidak atau tak pasti', buat: langkahTidak }]);
+}
+function langkahTidak() {
+  bot('Tiada masalah. Anda tetap boleh belanja di KOMASKU seperti biasa, di kedai atau order untuk dihantar.');
+  bot('Kalau tak pasti sama ada anda penerima bantuan, WhatsApp kami dan staf akan bantu semak.');
+  pilihan([
+    { teks: 'Lihat barang', utama: 1, buat: () => keBarang() },
+    { teks: 'WhatsApp KOMASKU', buat: () => { window.open(waKomasku('Assalamualaikum KOMASKU. Saya nak semak sama ada saya layak untuk tunai RM10.'), '_blank'); pilihanAkhir(); } },
+    { teks: 'Mula semula', buat: () => { $('chatMesej').innerHTML = ''; langkahMula(); } }
+  ]);
+}
+function langkahYa() {
+  bot('Baik. Saya akan semak nama anda dalam senarai penerima KOMASKU.');
+  bot('Sila taip <b>12 nombor IC</b> anda.<br><span class="cm-kecil">IC hanya digunakan untuk semakan dan tidak dipaparkan.</span>');
+  $('chatPilihan').innerHTML = ''; $('chatBorang').hidden = false; $('chatIc').value = ''; $('chatIc').focus();
+}
+$('chatBorang').addEventListener('submit', async e => {
+  e.preventDefault();
+  const ic = $('chatIc').value.replace(/\D/g, '');
+  if (ic.length !== 12) { bot('Nombor IC mesti <b>12 nombor</b>. Contoh: 650312045678. Cuba lagi.'); return; }
+  saya(ic.slice(0, 6) + '-' + ic.slice(6, 8) + '-' + ic.slice(8));
+  $('chatBorang').hidden = true;
+  const tunggu = document.createElement('div'); tunggu.className = 'cm bot menaip'; tunggu.innerHTML = '<span></span><span></span><span></span>';
+  $('chatMesej').appendChild(tunggu); $('chatMesej').scrollTop = $('chatMesej').scrollHeight;
+  try {
+    const r = await api('semakIC', { ic, ref: REF });
+    tunggu.remove();
+    if (!r.ada) return tiadaDalamSenarai();
+    adaDalamSenarai(r, ic);
+  } catch (err) {
+    tunggu.remove();
+    bot(esc(err.message));
+    pilihan([{ teks: 'Cuba lagi', utama: 1, buat: langkahYa }, { teks: 'WhatsApp KOMASKU', buat: () => window.open(waKomasku('Assalamualaikum KOMASKU. Saya nak semak kelayakan tunai RM10.'), '_blank') }]);
+  }
+});
+function adaDalamSenarai(r, ic) {
+  bot(`Alhamdulillah, nama anda <b>${esc(r.nama)}</b> ada dalam senarai penerima KOMASKU.`);
+  simpan('kmk_ic', ic);
+  if (r.kod) {
+    if (!REF) { REF = r.kod; simpan('kmk_ref', r.kod, true); }
+    bot(`Ini kod anda. Tunjuk di kaunter bersama IC:<div class="cm-kod">${esc(r.kod)}</div>` +
+      (r.wakil ? `<span class="cm-kecil">Wakil anda: ${esc(r.wakil)}</span>` : ''));
+    bot(r.layak
+      ? `<b>Cara claim tunai RM${r.bonus}:</b><ol><li>Datang ke KOMASKU dan bawa IC.</li><li>Tunjuk kod di atas kepada staf.</li><li>Belanja guna bantuan IC, kemudian terima tunai RM${r.bonus}.</li></ol>Atau order di sini dan kami hantar ke rumah.`
+      : `Tunai RM${r.bonus} bulan ini sudah diterima. Anda tetap boleh belanja bantuan di KOMASKU, dan tunai seterusnya diberi bulan depan.`);
+  } else {
+    bot('Datang ke KOMASKU dengan IC anda. Staf akan daftarkan anda dengan wakil supaya anda boleh terima tunai RM10 setiap bulan.');
+  }
+  pilihan([
+    { teks: 'Order, hantar ke rumah', utama: 1, buat: () => keBarang(true) },
+    { teks: 'Lokasi kedai', buat: () => { tutupChat(); $('lokasi').scrollIntoView({ behavior: GERAK ? 'smooth' : 'auto' }); } },
+    ...(r.kod ? [{ teks: 'Salin kod', senyap: 1, buat: () => { salinTeks(r.kod); adaPilihanAkhir(); } }] : [])
+  ]);
+}
+function salinTeks(t) {
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Kod ' + t + ' disalin'), () => toast('Kod anda: ' + t));
+}
+function adaPilihanAkhir() {
+  pilihan([
+    { teks: 'Order, hantar ke rumah', utama: 1, buat: () => keBarang(true) },
+    { teks: 'Lokasi kedai', buat: () => { tutupChat(); $('lokasi').scrollIntoView({ behavior: GERAK ? 'smooth' : 'auto' }); } }
+  ]);
+}
+function tiadaDalamSenarai() {
+  bot('Maaf, IC ini <b>tiada dalam senarai</b> penerima KOMASKU.');
+  bot('Mungkin nama anda belum dimasukkan. WhatsApp kami untuk semakan, atau cuba semula jika tersalah taip.');
+  pilihan([
+    { teks: 'Cuba IC lain', utama: 1, buat: langkahYa },
+    { teks: 'WhatsApp KOMASKU', buat: () => { window.open(waKomasku('Assalamualaikum KOMASKU. Saya penerima bantuan zakat tetapi IC saya tiada dalam senarai. Nama: \nKampung: '), '_blank'); pilihanAkhir(); } },
+    { teks: 'Lihat barang', buat: () => keBarang() }
+  ]);
+}
+function pilihanAkhir() {
+  pilihan([{ teks: 'Lihat barang', utama: 1, buat: () => keBarang() }, { teks: 'Mula semula', buat: () => { $('chatMesej').innerHTML = ''; langkahMula(); } }]);
+}
+function keBarang(order) {
+  tutupChat();
+  $('barang').scrollIntoView({ behavior: GERAK ? 'smooth' : 'auto' });
+  if (order) toast('Pilih barang, kemudian tekan Semak troli');
 }
 
 muatLaman();

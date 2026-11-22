@@ -127,7 +127,7 @@ function lukis() {
   $('nPel').textContent = r.pelanggan; $('nBelum').textContent = r.belumBeli; $('nOrder').textContent = r.order;
   $('btnKedai').href = D.link;
   $('kadarUp').textContent = D.kadar.upline;
-  $('kadarTeks').innerHTML = `Anda terima <b>${D.kadar.kendiri}%</b> daripada setiap belian pelanggan tetap anda (contoh: RM200 = ${rm(D.kadar.kendiri * 2)}), dan <b>${D.kadar.upline}%</b> daripada belian pelanggan wakil di bawah anda. Pelanggan anda dapat tambahan RM${D.kadar.bonus} sebulan.`;
+  $('kadarTeks').innerHTML = `Anda terima <b>${D.kadar.kendiri}%</b> daripada setiap belian pelanggan tetap anda (contoh: RM200 = ${rm(D.kadar.kendiri * 2)}), dan <b>${D.kadar.upline}%</b> daripada belian pelanggan wakil di bawah anda. Pelanggan anda terima tunai RM${D.kadar.bonus} sebulan.`;
 
   if (!D.aff.telegram && D.botUrl) { $('sambungTg').hidden = false; $('btnTg').href = D.botUrl; } else $('sambungTg').hidden = true;
   $('tabProspek').hidden = !D.aff.prospek;
@@ -161,7 +161,7 @@ function kadOrder(o) {
   return `<li>
     <div class="baris-atas"><span class="nama">${esc(o.nama)}</span><span class="kod">${esc(o.no)}</span></div>
     <div class="info">${o.saluran === 'kedai' ? 'Belian di kedai' : o.kaedah === 'hantar' ? 'Hantar: ' + esc(o.alamat) : 'Ambil di kedai'}, ${tarikh(o.masa, 1)}</div>
-    <div class="info">Ditolak daripada IC: <b>${rm(o.jumlah_bayar)}</b>${o.bonus ? `, tambahan ${rm(o.bonus)}` : ''}${o.kom_aff ? `, komisen anda ${rm(o.kom_aff)}` : ''}</div>
+    <div class="info">Ditolak daripada IC: <b>${rm(o.jumlah_bayar)}</b>${o.bonus ? `, tunai ${rm(o.bonus)}` : ''}${o.kom_aff ? `, komisen anda ${rm(o.kom_aff)}` : ''}</div>
     <span class="lencana ${['DIHANTAR', 'SELESAI', 'DIBAYAR', 'DISIAPKAN'].includes(o.status) ? 'hijau' : o.status === 'BATAL' ? 'merah' : ''}">${LABEL_STATUS[o.status]}</span>
     ${item}${aksi ? `<div class="aksi">${aksi}</div>` : ''}</li>`;
 }
@@ -170,7 +170,7 @@ function sahBayar(id) {
   const o = D.order.find(x => x.id === id);
   buka(`<h2>Sahkan bayaran ${esc(o.no)}</h2>
     <p>Tolak <b>${rm(o.jumlah_bayar)}</b> daripada IC ${esc(o.nama)} (hujung ${esc(o.ic4)}) di terminal, kemudian tekan sahkan.</p>
-    ${o.bonus ? `<p class="nota">Pelanggan dapat tambahan barang ${rm(o.bonus)}. Jumlah barang ${rm(o.subtotal)}.</p>` : ''}
+    ${o.bonus ? `<p class="nota">Beri <b>tunai ${rm(o.bonus)}</b> kepada pelanggan semasa serahkan barang.</p>` : ''}
     <div class="medan"><label for="resit">No. resit terminal (pilihan)</label><input class="input" id="resit"></div>
     <div id="eB"></div>
     <div class="deret"><button class="btn" id="okB">Sahkan dibayar</button><button class="btn kedua" onclick="tutup()">Batal</button></div>`);
@@ -201,7 +201,7 @@ function lukisPelanggan() {
   const baris = p => `<li><div class="nama">${esc(p.nama)}</div>
     <div class="info">${esc(p.kampung || '')}${p.kampung ? ', ' : ''}IC hujung ${esc(p.ic4)}${p.beliTerakhir ? ', beli terakhir ' + tarikh(p.beliTerakhir) : ''}</div>
     <div class="aksi"><a class="btn kecil" href="${esc(D.link)}" target="_blank" rel="noopener">Order untuk dia</a>
-    ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Bantuan bulan ini sudah masuk. Boleh belanja di KOMASKU dan dapat tambahan RM${D.kadar.bonus}. Nak saya bantu order? Pilih barang di sini: ${D.link}`))}">Ingatkan</a>` : ''}</div></li>`;
+    ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Bantuan bulan ini sudah masuk. Boleh belanja di KOMASKU dan terima tunai RM${D.kadar.bonus}. Nak saya bantu order? Pilih barang di sini: ${D.link}`))}">Ingatkan</a>` : ''}</div></li>`;
   $('cBelum').textContent = belum.length + ' orang'; $('cSudah').textContent = sudah.length + ' orang';
   $('lBelum').innerHTML = belum.length ? belum.map(baris).join('') : `<li class="kosong">${D.pelanggan.length ? 'Semua pelanggan sudah beli bulan ini.' : 'Belum ada pelanggan tetap. Pelanggan jadi milik anda bila mereka beli melalui link atau kod anda.'}</li>`;
   $('lSudah').innerHTML = sudah.length ? sudah.map(baris).join('') : '<li class="kosong">Belum ada.</li>';
@@ -219,7 +219,7 @@ function lukisProspek() {
     <div class="aksi">
       ${!p.dijumpai ? `<button class="btn kecil" onclick="jumpa('${p.id}')">Tanda dah jumpa</button>` : ''}
       <a class="btn kecil ${p.dijumpai ? '' : 'kedua'}" href="${esc(D.link)}" target="_blank" rel="noopener">Order untuk dia</a>
-      ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Saya ${D.aff.nama}, wakil KOMASKU. Bantuan RM200 boleh dibelanjakan di KOMASKU dan anda dapat tambahan RM${D.kadar.bonus} setiap bulan. Pilih barang di sini: ${D.link}`))}">WhatsApp</a>` : ''}
+      ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Saya ${D.aff.nama}, wakil KOMASKU. Bantuan RM200 boleh dibelanjakan di KOMASKU dan anda terima tunai RM${D.kadar.bonus} setiap bulan. Pilih barang di sini: ${D.link}`))}">WhatsApp</a>` : ''}
       ${p.dijumpai && p.olehSaya ? `<button class="btn kecil bahaya" onclick="jumpa('${p.id}', true)">Batal tanda</button>` : ''}
     </div></li>`;
   $('cPros1').textContent = belum.length + ' orang'; $('cPros2').textContent = sudah.length + ' orang';
@@ -279,7 +279,7 @@ function kongsi(tajuk, teks) {
     <button class="btn kedua penuh" style="margin-top:.6rem" onclick="tutup()">Tutup</button>`);
 }
 $('btnKongsi').addEventListener('click', () => kongsi('Kongsi link kedai',
-  `Assalamualaikum. Bantuan RM200 dalam IC boleh dibelanjakan di KOMASKU, kedai koperasi Kampung Kundur. Anda dapat tambahan barang RM${D.kadar.bonus} setiap bulan.\n\nPilih barang di sini, kami hantar ke rumah:\n${D.link}\n\nAtau datang ke kedai dan tunjuk kod: ${D.aff.kod}`));
+  `Assalamualaikum. Bantuan RM200 dalam IC boleh dibelanjakan di KOMASKU, kedai koperasi Kampung Kundur. Anda terima tunai RM${D.kadar.bonus} setiap bulan.\n\nPilih barang di sini, kami hantar ke rumah:\n${D.link}\n\nAtau datang ke kedai dan tunjuk kod: ${D.aff.kod}`));
 $('btnDaftar').addEventListener('click', () => kongsi('Kongsi link daftar wakil',
   `Assalamualaikum. Jom jadi wakil KOMASKU dan bantu jiran belanja bantuan mereka di kedai koperasi kampung. Daftar di sini:\n${D.linkDaftar}`));
 

@@ -201,7 +201,7 @@ async function muatRingkasan(bulan) {
   const j = RS.jumlah;
   $('jumlah').innerHTML = `<div><b>${rm(j.jualan)}</b><span>Jualan melalui IC (${j.order} order, ${j.website} online)</span></div>
     <div><b>${rm(j.komisen)}</b><span>Komisen wakil</span></div>
-    <div><b>${rm(j.bonus)}</b><span>Tambahan kepada pelanggan</span></div>
+    <div><b>${rm(j.bonus)}</b><span>Tunai RM10 kepada pelanggan</span></div>
     <div><b>${j.pelangganTetap} / ${j.pelanggan}</b><span>Pelanggan ada wakil / jumlah nama</span></div>`;
   $('tRingkasan').innerHTML = RS.baris.length ? RS.baris.map(b => `<tr><td>${esc(b.nama)} <span class="kod kecil">${esc(b.kod)}</span>${b.upline ? `<div class="kecil">Bawah ${esc(b.upline)}</div>` : ''}</td>
     <td class="n">${b.pelanggan}</td><td class="n">${b.belumBeli}</td><td class="n">${b.order}</td><td class="n">${rm(b.jualan)}</td>
@@ -228,7 +228,7 @@ function lukisOrder() {
   $('lOrder').innerHTML = l.length ? l.map(o => `<li>
     <div class="baris-atas"><span class="nama">${esc(o.nama)}</span><span class="kod">${esc(o.no)}</span></div>
     <div class="info">${o.saluran === 'kedai' ? 'Jualan kedai' : o.kaedah === 'hantar' ? 'Hantar: ' + esc(o.alamat) : 'Ambil di kedai'}, ${tarikh(o.masa, 1)}, IC hujung ${esc(o.ic4)}${o.affiliate ? ', wakil ' + esc(o.affiliate) : ', tiada wakil'}</div>
-    <div class="info">Tolak IC ${rm(o.jumlah_bayar)}${o.bonus ? `, tambahan ${rm(o.bonus)}` : ''}${o.kom_aff ? `, komisen ${rm(o.kom_aff + o.kom_upline)}` : ''}${o.resit ? ', resit ' + esc(o.resit) : ''}</div>
+    <div class="info">Tolak IC ${rm(o.jumlah_bayar)}${o.bonus ? `, tunai ${rm(o.bonus)}` : ''}${o.kom_aff ? `, komisen ${rm(o.kom_aff + o.kom_upline)}` : ''}${o.resit ? ', resit ' + esc(o.resit) : ''}</div>
     ${o.item.length ? `<details class="item-order"><summary>${o.item.length} jenis barang</summary><ul>${o.item.map(i => `<li>${i.qty} × ${esc(i.nama)}</li>`).join('')}</ul></details>` : ''}
     ${o.nota ? `<div class="info">Nota: ${esc(o.nota)}</div>` : ''}
     <span class="lencana ${o.status === 'BATAL' ? 'merah' : o.status === 'BARU' ? '' : 'hijau'}">${LABEL_STATUS[o.status]}</span>
@@ -244,7 +244,7 @@ $('tapisStatus').addEventListener('change', lukisOrder);
 function tukarStatus(id, status) {
   const o = OR.find(x => x.id === id);
   buka(`<h2>${LABEL_STATUS[status]}: ${esc(o.no)}</h2>
-    ${status === 'DIBAYAR' ? `<p>Pastikan <b>${rm(o.jumlah_bayar)}</b> sudah ditolak daripada IC ${esc(o.nama)}.</p><div class="medan"><label for="sR">No. resit terminal (pilihan)</label><input class="input" id="sR"></div>` : ''}
+    ${status === 'DIBAYAR' ? `<p>Pastikan <b>${rm(o.jumlah_bayar)}</b> sudah ditolak daripada IC ${esc(o.nama)}.${o.bonus ? ` Beri tunai ${rm(o.bonus)} kepada pelanggan.` : ''}</p><div class="medan"><label for="sR">No. resit terminal (pilihan)</label><input class="input" id="sR"></div>` : ''}
     ${status === 'BATAL' ? `<p>Stok dipulangkan dan komisen dibatalkan.</p><div class="medan"><label for="sS">Sebab</label><input class="input" id="sS"></div>` : ''}
     <div id="eD"></div><div class="deret"><button class="btn ${status === 'BATAL' ? 'bahaya' : ''}" id="okD">Sahkan</button><button class="btn kedua" onclick="tutup()">Kembali</button></div>`);
   $('okD').onclick = borangAksi('okD', async () => {
@@ -432,16 +432,19 @@ const LABEL_TETAPAN = {
   KOMISEN_TERUS_PERATUS: ['Komisen wakil utama (%)', 'Wakil tanpa upline, contoh Salman. 10% daripada RM200 = RM20.'],
   KOMISEN_TIER1_PERATUS: ['Komisen wakil Tier 1 (%)', 'Wakil yang ada upline. 5% daripada RM200 = RM10.'],
   KOMISEN_UPLINE_PERATUS: ['Komisen upline atas jualan Tier 1 (%)', 'Diterima upline bila pelanggan wakil Tier 1 membeli. 5% = RM10.'],
-  BONUS_PESERTA: ['Tambahan barang pelanggan (RM)', 'Sekali sebulan, untuk pelanggan yang ada wakil.'],
-  TERIMA_ORDER: ['Terima order online', 'Pilih Tidak untuk tutup order online sementara.']
+  BONUS_PESERTA: ['Tunai untuk pelanggan (RM)', 'Diberi tunai sekali sebulan, untuk pelanggan yang ada wakil.'],
+  TERIMA_ORDER: ['Terima order online', 'Pilih Tidak untuk tutup order online sementara.'],
+  WAKIL_LALAI: ['Kod wakil untuk pelawat chatbot', 'Pelawat website yang semak IC di chatbot tetapi belum ada wakil akan diberi kod ini. Contoh: SALMAN. Biar kosong jika tiada.']
 };
 async function muatTetapan() {
   const t = (await api('aTetapan', { pin: PIN })).tetapan;
-  $('borangTetapan').innerHTML = '<h2>Kadar komisen dan tambahan</h2>' + t.map(x => {
+  $('borangTetapan').innerHTML = '<h2>Kadar komisen, tunai dan chatbot</h2>' + t.map(x => {
     const [lbl, ket] = LABEL_TETAPAN[x.kunci] || [x.kunci, ''];
     const input = x.kunci === 'TERIMA_ORDER'
       ? `<select id="t_${x.kunci}"><option value="YA">Ya</option><option value="TIDAK" ${x.nilai === 'TIDAK' ? 'selected' : ''}>Tidak</option></select>`
-      : `<input class="input" id="t_${x.kunci}" inputmode="decimal" value="${esc(x.nilai)}">`;
+      : x.kunci === 'WAKIL_LALAI'
+        ? `<input class="input" id="t_${x.kunci}" autocapitalize="characters" placeholder="Contoh: SALMAN" value="${esc(x.nilai)}">`
+        : `<input class="input" id="t_${x.kunci}" inputmode="decimal" value="${esc(x.nilai)}">`;
     return `<div class="medan"><label for="t_${x.kunci}">${lbl}</label>${input}<p class="kecil" style="margin:.3rem 0 0">${ket}</p></div>`;
   }).join('') + '<div id="eTet"></div><button class="btn">Simpan tetapan</button>';
   $('borangTetapan').dataset.kunci = t.map(x => x.kunci).join(',');

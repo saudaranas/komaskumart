@@ -66,7 +66,7 @@ let PIN = ambil('kmk_kpin'), BONUS = KOMASKU.BONUS, ORDER = [], HASIL = [];
 function paparHariIni(list) {
   $('bilHari').textContent = list.length + ' jualan';
   $('hariIni').innerHTML = list.length ? list.map(x => `<li><div class="baris-atas"><span class="nama">${esc(x.nama)}</span><span class="kod">${esc(x.no)}</span></div>
-    <div class="info">${x.saluran === 'kedai' ? 'Kedai' : 'Online'}, ${esc(x.masa)}, ${rm(x.jumlah)}${x.bonus ? ', tambahan ' + rm(x.bonus) : ''}</div></li>`).join('')
+    <div class="info">${x.saluran === 'kedai' ? 'Kedai' : 'Online'}, ${esc(x.masa)}, ${rm(x.jumlah)}${x.bonus ? ', tunai ' + rm(x.bonus) : ''}</div></li>`).join('')
     : '<li class="kosong">Belum ada jualan hari ini.</li>';
 }
 
@@ -114,7 +114,7 @@ function borangJual(p, baru) {
               <p class="kecil">IC: ${esc(p.ic)}</p>` : `<p class="kecil">IC hujung ${esc(p.ic4)}${p.kampung ? ', ' + esc(p.kampung) : ''}</p>`}
     ${p.affiliate ? `<p>Pelanggan tetap <b>${esc(p.affiliate)}</b>. Tak perlu kod.</p>`
       : `<div class="medan"><label for="jKod">Kod wakil (jika ada)</label><input class="input kod" id="jKod" autocapitalize="characters" placeholder="Contoh: SALMAN"></div>`}
-    ${p.affiliate ? (p.bonusLayak ? `<div class="bonus-besar">Layak tambahan barang RM${BONUS} bulan ini</div>` : `<p class="nota">Tambahan RM${BONUS} sudah diterima bulan ini.</p>`) : ''}
+    ${p.affiliate ? (p.bonusLayak ? `<div class="bonus-besar">Layak tunai RM${BONUS} bulan ini</div>` : `<p class="nota">Tunai RM${BONUS} sudah diterima bulan ini.</p>`) : ''}
     <div class="medan"><label for="jJum">Jumlah ditolak daripada IC (RM)</label><input class="input" id="jJum" inputmode="decimal" value="200"></div>
     <div class="medan"><label for="jResit">No. resit terminal (pilihan)</label><input class="input" id="jResit"></div>
     <div id="eJ"></div>
@@ -128,7 +128,7 @@ function borangJual(p, baru) {
     try {
       const r = await api('kJual', data);
       $('jualan').innerHTML = `<div class="panel"><h2>Jualan ${esc(r.no)} direkod</h2>
-        ${r.bonus ? `<div class="bonus-besar">Beri tambahan barang RM${r.bonus}</div>` : '<p>Tiada tambahan untuk jualan ini.</p>'}
+        ${r.bonus ? `<div class="bonus-besar">Beri tunai RM${r.bonus} kepada pelanggan</div>` : '<p>Tiada tunai untuk jualan ini.</p>'}
         ${r.affiliate ? `<p>Pelanggan tetap ${esc(r.affiliate)}.</p>` : ''}
         <button class="btn penuh" type="button" onclick="$('jualan').innerHTML='';$('cari').value='';$('cari').focus()">Pelanggan seterusnya</button></div>`;
       const l = await api('kLogin', { pin: PIN }); paparHariIni(l.hariIni);
@@ -150,7 +150,7 @@ function lukisOrder() {
     <div class="info">${o.kaedah === 'hantar' ? 'Hantar: ' + esc(o.alamat) : 'Ambil di kedai'}, ${tarikh(o.masa, 1)}${o.affiliate ? ', wakil ' + esc(o.affiliate) : ''}</div>
     <div class="info">IC hujung ${esc(o.ic4)}, ${esc(o.telefon)}</div>
     <ul style="margin:.5rem 0;padding-left:1.2rem">${o.item.map(i => `<li>${i.qty} × ${esc(i.nama)} <span class="kecil">(${rm(i.harga * i.qty)})</span></li>`).join('')}</ul>
-    <div class="info">Jumlah ${rm(o.subtotal)}${o.bonus ? `, tambahan &minus;${rm(o.bonus)}` : ''}, <b>tolak IC ${rm(o.jumlah_bayar)}</b></div>
+    <div class="info">Jumlah ${rm(o.subtotal)}${o.bonus ? `, beri tunai ${rm(o.bonus)}` : ''}, <b>tolak IC ${rm(o.jumlah_bayar)}</b></div>
     ${o.nota ? `<div class="info">Nota: ${esc(o.nota)}</div>` : ''}
     <span class="lencana ${o.status === 'BARU' ? '' : 'hijau'}">${LABEL_STATUS[o.status]}</span>
     <div class="aksi">
@@ -165,7 +165,7 @@ function tukar(id, status) {
   const o = ORDER.find(x => x.id === id);
   const tajuk = { DIBAYAR: 'Sahkan bayaran IC', DISIAPKAN: 'Tanda disiapkan', DIHANTAR: o.kaedah === 'ambil' ? 'Tanda sudah diambil' : 'Tanda sudah dihantar', BATAL: 'Batal order' }[status];
   buka(`<h2>${tajuk}: ${esc(o.no)}</h2>
-    ${status === 'DIBAYAR' ? `<p>Tolak <b>${rm(o.jumlah_bayar)}</b> daripada IC ${esc(o.nama)} di terminal.</p>
+    ${status === 'DIBAYAR' ? `<p>Tolak <b>${rm(o.jumlah_bayar)}</b> daripada IC ${esc(o.nama)} di terminal.${o.bonus ? ` Beri tunai ${rm(o.bonus)} semasa serahkan barang.` : ''}</p>
       <div class="medan"><label for="tR">No. resit terminal (pilihan)</label><input class="input" id="tR"></div>` : ''}
     ${status === 'BATAL' ? `<p>Stok barang akan dipulangkan.${o.status !== 'BARU' ? ' Order ini sudah dibayar: uruskan pemulangan bayaran secara manual.' : ''}</p>
       <div class="medan"><label for="tS">Sebab</label><input class="input" id="tS"></div>` : ''}
