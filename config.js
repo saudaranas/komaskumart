@@ -5,14 +5,13 @@ window.KOMASKU = {
   // URL Web App Google Apps Script (Deploy > Web app > URL berakhir /exec)
   API: 'https://script.google.com/macros/s/AKfycbyQ2Uem-XhPzs9Kj-PPMKwFW5qp7mI1yEOvEz3VjnCZoNwvaxjGlnt_C24CsDOR4b3r/exec',
 
-  ALAMAT: '[Isi alamat penuh KOMASKU, Kampung Kundur]',
+  ALAMAT: 'Lot 2456, Kampung Kundur Hulu, 71400 Pedas, Negeri Sembilan',
   WAKTU: [
-    '[Isi waktu operasi, contoh: Isnin hingga Sabtu, 8 pagi hingga 6 petang]',
-    '[Isi hari tutup]'
+    'Setiap hari, 10 pagi hingga 5 petang'
   ],
-  TELEFON_PAPAR: '[01X-XXX XXXX]',
-  WHATSAPP: '60XXXXXXXXX',            // nombor WhatsApp KOMASKU, format 60...
-  MAPS: 'https://maps.google.com/?q=Kampung+Kundur',  // tukar kepada link Google Maps sebenar
+  TELEFON_PAPAR: '012-383 0649',
+  WHATSAPP: '60123830649',            // nombor WhatsApp KOMASKU, format 60...
+  MAPS: 'https://maps.app.goo.gl/YXHbtiTKm6BBo24Y9',
 
   BANTUAN: 200,
   BONUS: 10
