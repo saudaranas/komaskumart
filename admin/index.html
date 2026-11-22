@@ -6,8 +6,8 @@
 <meta name="robots" content="noindex">
 <title>Admin – KOMASKU</title>
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="../style.css?v=2611221808">
-<script src="../config.js?v=2611221808"></script>
+<link rel="stylesheet" href="../style.css?v=2611221814">
+<script src="../config.js?v=2611221814"></script>
 <style>
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
   @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
@@ -527,8 +527,10 @@ function borangKandungan(jenis, id) {
   buka(`<h2>${id ? 'Ubah' : 'Tambah'} ${slaid ? 'poster' : 'kad artikel'}</h2>
     ${slaid ? '<p class="kecil" style="margin:0 0 .5rem">Poster komputer 1600 × 900 (16:9). Poster telefon 1080 × 1350 (4:5), pilihan tetapi disyorkan.</p>' : ''}
     ${slaid ? medanGambar('kG', x.gambar, '16:9').replace('Gambar (16:9)', 'Poster komputer (16:9)') : medanGambar('kG', x.gambar, '1:1')}
-    ${slaid ? medanGambar('kM', x.gambar_mobile, '4:5').replace('Gambar (4:5)', 'Poster telefon (4:5)') : ''}
+    ${slaid ? medanGambar('kM', x.gambar_mobile, '4:5').replace('Gambar (4:5)', 'Poster telefon (4:5)')
+      : medanGambar('kB', x.gambar_besar, '16:9').replace('Gambar (16:9)', 'Gambar dalam halaman artikel (1200 × 630)').replace('nisbah 16:9', 'saiz 1200 × 630')}
     <div class="medan"><label for="kT">${slaid ? 'Tajuk (untuk pembaca skrin, pilihan)' : 'Tajuk'}</label><input class="input" id="kT" value="${esc(x.tajuk)}"></div>
+    ${slaid ? '' : '<p class="kecil" style="margin:-.4rem 0 .9rem">Gambar kad 1:1 (800 × 800) untuk senarai bacaan. Gambar halaman artikel 1200 × 630, juga saiz yang dipaparkan bila link dikongsi. Jika tiada, gambar kad digunakan.</p>'}
     ${slaid ? '' : `<div class="medan"><label for="kR">Ringkasan</label><input class="input" id="kR" value="${esc(x.ringkas)}"></div>`}
     <div class="medan"><label for="kL">Link bila ditekan</label><input class="input" id="kL" value="${esc(x.link)}" placeholder="${slaid ? 'Contoh: /#barang atau https://wa.me/60…' : 'Contoh: /artikel/nama-artikel.html'}"></div>
     <div class="grid2">
@@ -539,9 +541,10 @@ function borangKandungan(jenis, id) {
     <div class="deret"><button class="btn" id="okD">Simpan</button>${id ? '<button class="btn bahaya" id="padam">Padam</button>' : ''}<button class="btn kedua" onclick="tutup()">Batal</button></div>`);
   pasangGambar('kG', slaid ? 16 / 9 : 1, slaid ? 1600 : 800, jenis);
   if (slaid) pasangGambar('kM', 4 / 5, 1080, 'slaid-telefon');
+  else pasangGambar('kB', 1200 / 630, 1200, 'artikel-besar');
   $('okD').onclick = borangAksi('okD', async () => {
     const data = { id, gambar: $('kG').value, tajuk: $('kT').value, link: $('kL').value, susunan: $('kS').value, aktif: $('kA').value };
-    if (!slaid) data.ringkas = $('kR').value; else data.gambar_mobile = $('kM').value;
+    if (!slaid) { data.ringkas = $('kR').value; data.gambar_besar = $('kB').value; } else data.gambar_mobile = $('kM').value;
     await api('aKandunganSimpan', { pin: PIN, jenis, data });
     muatKandungan();
   }, 'Disimpan');

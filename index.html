@@ -10,8 +10,8 @@
 <meta property="og:image" content="https://komaskumart.com/og.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="style.css?v=2611221808">
-<script src="config.js?v=2611221808"></script>
+<link rel="stylesheet" href="style.css?v=2611221814">
+<script src="config.js?v=2611221814"></script>
 </head>
 <body class="kedai">
 
@@ -238,6 +238,11 @@ async function muatLaman() {
     simpanTroli();
     if (!mulaHero) { mulaHero = true; lukisHero(j.slaid); lukisArtikel(j.artikel); }
     lukisKategori(); lukisGrid(); lukisBar();
+    const pBuka = q.get('p');
+    if (pBuka && produkId(pBuka) && !$('dlg').open) {
+      history.replaceState(null, '', location.pathname + location.hash);
+      $('barang').scrollIntoView(); bukaProduk(pBuka);
+    }
   } catch (e) {
     $('heroTeks').hidden = false;
     $('grid').innerHTML = '<p class="kosong">Senarai barang tidak dapat dimuatkan. Semak internet dan muat semula halaman, atau WhatsApp kami.</p>';
@@ -346,6 +351,7 @@ function lukisGrid() {
           <p class="kp-harga">${rm(p.harga)}</p>
         </div>
       </button>
+      <button class="kp-kongsi" type="button" data-kongsi="${p.id}" aria-label="Kongsi ${esc(p.nama)}">${IKON_KONGSI}</button>
       <div class="kp-aksi">${stepper(p)}</div>
     </article>`).join('');
   $('lagi').hidden = list.length <= had;
@@ -367,9 +373,17 @@ function ubahTroli(id, beza) {
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tambah],[data-kurang]');
   if (t) return ubahTroli(t.dataset.tambah || t.dataset.kurang, t.dataset.tambah ? 1 : -1);
+  const k = e.target.closest('[data-kongsi]');
+  if (k) return kongsiProduk(k.dataset.kongsi);
   const b = e.target.closest('[data-buka]');
   if (b) bukaProduk(b.dataset.buka);
 });
+
+/* ---------- Kongsi produk: link /?p=ID membuka butiran barang terus ---------- */
+function kongsiProduk(id) {
+  const p = produkId(id); if (!p) return;
+  kongsiLink(p.nama + ', ' + rm(p.harga) + ' di KOMASKU', location.origin + '/?p=' + encodeURIComponent(id));
+}
 
 /* ---------- Modal butiran produk ---------- */
 function bukaProduk(id) {
@@ -385,6 +399,7 @@ function bukaProduk(id) {
       <p class="mp-harga">${rm(p.harga)}</p>
       ${p.keterangan ? `<p class="mp-ket">${esc(p.keterangan).replace(/\n/g, '<br>')}</p>` : ''}
       <p class="kecil">${habis ? 'Barang ini sudah habis.' : p.stok !== null ? 'Stok: ' + p.stok : 'Ada stok'}</p>
+      <button class="btn-kongsi" type="button" data-kongsi="${p.id}">${IKON_KONGSI} Kongsi barang ini</button>
       ${habis ? '' : `<div class="mp-beli">
         <div class="stepper" role="group" aria-label="Kuantiti">
           <button type="button" id="mpKurang" aria-label="Kurang">&minus;</button><output id="mpQty">${qty}</output><button type="button" id="mpTambah" aria-label="Tambah">+</button>

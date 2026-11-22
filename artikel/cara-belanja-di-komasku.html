@@ -10,8 +10,8 @@
 <meta property="og:image" content="https://komaskumart.com/og.png">
 <meta property="og:type" content="article">
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="../style.css?v=2611221808">
-<script src="../config.js?v=2611221808"></script>
+<link rel="stylesheet" href="../style.css?v=2611221814">
+<script src="../config.js?v=2611221814"></script>
 </head>
 <body>
 <a class="bar-atas" href="../index.html#cara">Claim RM10, bila dapatkan barang zakat di KOMASKU! <span class="pil">Claim</span></a>
@@ -30,6 +30,8 @@
     <a class="balik" href="../index.html#bacaan">Semua bacaan</a>
     <h1>Cara belanja bantuan RM200 dan terima tunai RM10 di KOMASKU</h1>
     <p class="ringkas">Di kedai atau order untuk dihantar: apa yang perlu dibawa dan apa yang berlaku.</p>
+    <button class="btn-kongsi" type="button" id="kongsiAtas"></button>
+    <figure class="art-gambar" id="artGambar" hidden></figure>
 
 <p>Setiap bulan, bantuan RM200 dimasukkan ke dalam kad pengenalan anda. Bantuan ini boleh digunakan untuk membeli barang keperluan di KOMASKU, sama ada anda datang ke kedai atau order untuk dihantar ke rumah.</p>
 <p>Pelanggan yang didaftarkan oleh wakil KOMASKU menerima <strong>tunai RM10 setiap bulan</strong>.</p>
@@ -61,6 +63,10 @@
   <li>Tanpa wakil pun anda masih boleh belanja bantuan di KOMASKU. Tanya di kaunter cara untuk didaftarkan.</li>
 </ul>
 
+    <div class="kongsi-bawah">
+      <p>Rasa artikel ini berguna untuk jiran atau keluarga?</p>
+      <button class="btn" type="button" id="kongsiBawah"></button>
+    </div>
     <h2>Bacaan lain</h2>
     <ul class="senarai-artikel">
       <li><a href="senarai-barang-dapur-sebulan.html">Senarai barang dapur asas untuk sebulan</a><p>Susunan belanja supaya bantuan cukup sampai hujung bulan.</p></li>
@@ -75,6 +81,25 @@
     <a data-k="WA" href="#">WhatsApp KOMASKU</a>
   </div>
 </footer>
-<script>isiInfoKedai();</script>
+<script>
+isiInfoKedai();
+const tajukArt = document.querySelector('h1').textContent;
+[['kongsiAtas', 'Kongsi'], ['kongsiBawah', 'Kongsi artikel ini']].forEach(([id, label]) => {
+  const b = document.getElementById(id);
+  b.innerHTML = IKON_KONGSI + ' ' + label;
+  b.addEventListener('click', () => kongsiLink(tajukArt, location.origin + location.pathname));
+});
+// Gambar artikel diurus dari admin (sheet Artikel), dipadankan ikut link halaman ini
+fetch(KOMASKU.API + '?a=laman').then(r => r.json()).then(j => {
+  const ini = location.pathname.replace(/\.html$/, '');
+  const a = (j.artikel || []).find(x => x.link && new URL(x.link, location.origin).pathname.replace(/\.html$/, '') === ini);
+  const src = a && (a.gambar_besar || a.gambar);
+  if (!src) return;
+  const f = document.getElementById('artGambar');
+  f.classList.toggle('segi', !a.gambar_besar);
+  f.innerHTML = '<img alt="" src="' + esc(src) + '">';
+  f.hidden = false;
+}).catch(() => {});
+</script>
 </body>
 </html>

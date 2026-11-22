@@ -19,6 +19,24 @@ window.KOMASKU = {
 };
 
 /* ---- Fungsi kongsi (jangan ubah) ---- */
+/** Link untuk dikongsi: kekalkan kod wakil supaya pelanggan baharu dikira di bawah wakil yang sama */
+function linkKongsi(url) {
+  const u = new URL(url, location.origin);
+  let ref = null; try { ref = localStorage.getItem('kmk_ref'); } catch (e) {}
+  if (ref && !u.searchParams.get('ref')) u.searchParams.set('ref', ref);
+  return u.toString();
+}
+/** Butang kongsi: menu kongsi telefon jika ada, jika tiada terus ke WhatsApp */
+async function kongsiLink(tajuk, url) {
+  const link = linkKongsi(url);
+  if (navigator.share) {
+    try { await navigator.share({ title: tajuk, text: tajuk, url: link }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  window.open('https://wa.me/?text=' + encodeURIComponent(tajuk + '\n' + link), '_blank', 'noopener');
+}
+const IKON_KONGSI = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>';
+
 async function api(action, data) {
   let r;
   try {
