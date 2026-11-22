@@ -18,6 +18,11 @@ window.KOMASKU = {
   BONUS: 10
 };
 
+/* Link kemas: komaskumart.com/index.html dipapar sebagai komaskumart.com/ */
+if (/\/index\.html$/.test(location.pathname)) {
+  history.replaceState(null, '', location.pathname.replace(/index\.html$/, '') + location.search + location.hash);
+}
+
 /* ---- Fungsi kongsi (jangan ubah) ---- */
 /** Link untuk dikongsi: kekalkan kod wakil supaya pelanggan baharu dikira di bawah wakil yang sama */
 function linkKongsi(url) {
