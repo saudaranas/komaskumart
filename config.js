@@ -73,6 +73,7 @@ function ambil(k, kekal) {
 }
 
 function toast(t) {
+  document.querySelectorAll('.toast').forEach(x => x.remove());
   const el = document.createElement('div');
   el.className = 'toast'; el.setAttribute('role', 'status'); el.textContent = t;
   document.body.appendChild(el);

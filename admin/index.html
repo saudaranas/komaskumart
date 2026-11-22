@@ -21,6 +21,26 @@
   .jadual select { min-height: 2.3rem; padding: .2rem .4rem; font-size: .95rem; width: auto; }
   .aktiviti { list-style: none; padding: 0; margin: 0; font-size: .95rem; }
   .aktiviti li { padding: .55rem 0; border-bottom: 1px solid var(--garis); }
+  .pilih-gambar { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; align-items: center; }
+  .pilih-gambar.lebar { grid-template-columns: 12rem 1fr; }
+  .pg-pratonton { aspect-ratio: 1 / 1; border: 1px solid var(--garis); border-radius: 8px; overflow: hidden; display: grid; place-items: center; background: #f2f5f1; font-size: .85rem; color: var(--kelabu); }
+  .pilih-gambar.lebar .pg-pratonton { aspect-ratio: 16 / 9; }
+  .pilih-gambar > div { min-width: 0; }
+  .pilih-gambar input[type=file] { max-width: 100%; font-size: .9rem; }
+  dialog:has(.pilih-gambar.lebar) { width: min(36rem, calc(100% - 2rem)); }
+  @media (max-width: 520px) { .pilih-gambar.lebar { grid-template-columns: 1fr; } }
+  .pg-pratonton img { width: 100%; height: 100%; object-fit: cover; }
+  .sel-produk { display: flex; gap: .7rem; align-items: center; }
+  .sel-produk img, .tiada-mini { width: 2.6rem; height: 2.6rem; border-radius: 6px; object-fit: cover; background: #f2f5f1; flex: none; }
+  .senarai-kandungan { list-style: none; padding: 0; margin: 0; background: var(--putih); border: 1px solid var(--garis); border-radius: 8px; }
+  .senarai-kandungan li { display: flex; gap: 1rem; align-items: center; padding: .8rem 1rem; border-top: 1px solid var(--garis); }
+  .senarai-kandungan li:first-child { border-top: 0; }
+  .senarai-kandungan li.pudar { opacity: .55; }
+  .senarai-kandungan li.kosong { color: var(--kelabu); }
+  .sk-img { width: 4rem; aspect-ratio: 1 / 1; border-radius: 6px; overflow: hidden; background: #f2f5f1; flex: none; }
+  .sk-img.lebar { width: 8rem; aspect-ratio: 16 / 9; }
+  .sk-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sk-info { flex: 1; min-width: 0; }
   .aktiviti time { color: var(--kelabu); margin-right: .5rem; font-variant-numeric: tabular-nums; }
 </style>
 </head>
@@ -56,6 +76,7 @@
         <button role="tab" aria-selected="false" data-tab="produk">Produk</button>
         <button role="tab" aria-selected="false" data-tab="wakil">Wakil <span id="bilMenunggu"></span></button>
         <button role="tab" aria-selected="false" data-tab="pelanggan">Pelanggan</button>
+        <button role="tab" aria-selected="false" data-tab="laman">Laman</button>
         <button role="tab" aria-selected="false" data-tab="tetapan">Tetapan</button>
       </div>
 
@@ -115,6 +136,16 @@
           <tbody id="tPel"></tbody></table></div>
       </section>
 
+      <!-- LAMAN: slaid hero & kad artikel -->
+      <section id="tab-laman" hidden>
+        <div class="atas"><div><h2 style="margin:0">Poster hero</h2><p class="kecil" style="margin:.2rem 0 0">Nisbah 16:9 (contoh 1600 × 900 piksel). Bertukar sendiri setiap 5 saat.</p></div>
+          <button class="btn" onclick="borangKandungan('slaid')">Tambah poster</button></div>
+        <ul class="senarai-kandungan" id="lSlaid"></ul>
+        <div class="atas" style="margin-top:2rem"><div><h2 style="margin:0">Kad artikel</h2><p class="kecil" style="margin:.2rem 0 0">Gambar 1:1. Dipaparkan dalam carousel di bawah senarai barang.</p></div>
+          <button class="btn" onclick="borangKandungan('artikel')">Tambah kad artikel</button></div>
+        <ul class="senarai-kandungan" id="lArtikel"></ul>
+      </section>
+
       <!-- TETAPAN -->
       <section id="tab-tetapan" hidden>
         <form class="panel" id="borangTetapan" style="max-width:40rem"></form>
@@ -136,7 +167,7 @@ async function masuk(pin) {
   $('login').hidden = true; $('kerja').hidden = false; $('keluar').hidden = false;
   if (!r.botAda) $('tgTiada').hidden = false;
   else if (!r.adminTg) { $('tgAdmin').hidden = false; $('tgAdminLink').href = r.adminTgUrl; }
-  await Promise.all([muatRingkasan(), muatOrder(), muatProduk(), muatWakil(), muatPel(), muatTetapan()]);
+  await Promise.all([muatRingkasan(), muatOrder(), muatProduk(), muatWakil(), muatPel(), muatTetapan(), muatKandungan()]);
 }
 $('login').addEventListener('submit', async e => {
   e.preventDefault(); $('ralatLogin').innerHTML = '';
@@ -150,7 +181,7 @@ $('tgAdminSemak').addEventListener('click', async () => {
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-  ['ringkasan', 'order', 'produk', 'wakil', 'pelanggan', 'tetapan'].forEach(t => $('tab-' + t).hidden = b.dataset.tab !== t);
+  ['ringkasan', 'order', 'produk', 'wakil', 'pelanggan', 'laman', 'tetapan'].forEach(t => $('tab-' + t).hidden = b.dataset.tab !== t);
   if (b.dataset.tab === 'order') muatOrder();
   if (b.dataset.tab === 'ringkasan') muatRingkasan(RS && RS.bulan);
 });
@@ -227,7 +258,7 @@ function lukisProduk() {
   const l = PR.filter(p => !q || (p.nama + ' ' + p.sku + ' ' + p.kategori).toLowerCase().includes(q));
   $('bilProduk').textContent = `${l.length} daripada ${PR.length} produk. Kosongkan stok untuk tidak jejak stok.`;
   $('tProduk').innerHTML = l.length ? l.slice(0, 300).map(p => `<tr ${p.aktif === 'TIDAK' ? 'style="opacity:.5"' : ''}>
-    <td>${esc(p.nama)}<div class="kecil">${esc(p.sku)}</div></td><td>${esc(p.kategori)}</td><td class="n">${rm(p.harga)}</td>
+    <td><div class="sel-produk">${p.gambar ? `<img src="${esc(p.gambar)}" alt="" loading="lazy">` : '<span class="tiada-mini"></span>'}<div>${esc(p.nama)}<div class="kecil">${esc(p.sku)}</div></div></div></td><td>${esc(p.kategori)}</td><td class="n">${rm(p.harga)}</td>
     <td class="n"><input class="input mini" inputmode="numeric" value="${esc(p.stok)}" aria-label="Stok ${esc(p.nama)}" onchange="ubahProduk('${p.id}', {stok: this.value})"></td>
     <td><select aria-label="Habis ${esc(p.nama)}" onchange="ubahProduk('${p.id}', {habis: this.value})"><option value="TIDAK">Ada</option><option value="YA" ${p.habis === 'YA' ? 'selected' : ''}>Habis</option></select></td>
     <td><button class="btn kecil kedua" onclick="borangProduk('${p.id}')">Ubah</button></td></tr>`).join('')
@@ -241,7 +272,7 @@ async function ubahProduk(id, data) {
 
 function borangImportProduk() {
   buka(`<h2>Import produk dari Excel</h2>
-    <p class="kecil">Salin lajur dari Excel dan tampal di bawah, mengikut susunan ini:<br><b>SKU, Nama, Kategori, Harga, Stok</b> (lajur ke-6 Gambar URL, pilihan).<br>Produk dengan SKU sama akan dikemas kini. Biarkan Stok kosong jika tidak mahu jejak stok.</p>
+    <p class="kecil">Salin lajur dari Excel dan tampal di bawah, mengikut susunan ini:<br><b>SKU, Nama, Kategori, Harga, Stok</b> (lajur ke-6 Gambar URL dan ke-7 Keterangan, pilihan).<br>Produk dengan SKU sama akan dikemas kini. Biarkan Stok kosong jika tidak mahu jejak stok.</p>
     <div class="medan"><label for="iP">Data produk</label><textarea id="iP" placeholder="B001	Beras Super 10kg	Beras	32.50	20"></textarea></div>
     <div id="eD"></div><div class="deret"><button class="btn" id="okD">Import</button><button class="btn kedua" onclick="tutup()">Tutup</button></div>`);
   $('okD').onclick = async () => {
@@ -256,7 +287,7 @@ function borangImportProduk() {
 }
 
 function borangProduk(id) {
-  const p = PR.find(x => x.id === id) || { sku: '', nama: '', kategori: '', harga: '', stok: '', gambar: '', aktif: 'YA', susunan: '' };
+  const p = PR.find(x => x.id === id) || { sku: '', nama: '', kategori: '', harga: '', stok: '', gambar: '', aktif: 'YA', susunan: '', keterangan: '' };
   buka(`<h2>${id ? 'Ubah' : 'Tambah'} produk</h2>
     <div class="medan"><label for="fN">Nama</label><input class="input" id="fN" value="${esc(p.nama)}"></div>
     <div class="grid2">
@@ -266,7 +297,8 @@ function borangProduk(id) {
       <div class="medan"><label for="fT">Stok</label><input class="input" id="fT" inputmode="numeric" value="${esc(p.stok)}" placeholder="Kosong = tidak dijejak"></div>
     </div>
     <datalist id="senaraiKat">${Array.from(new Set(PR.map(x => x.kategori))).map(k => `<option value="${esc(k)}">`).join('')}</datalist>
-    <div class="medan"><label for="fG">Gambar URL (pilihan)</label><input class="input" id="fG" value="${esc(p.gambar)}"></div>
+    <div class="medan"><label for="fKet">Keterangan (dipapar dalam butiran produk)</label><textarea id="fKet" class="teks-biasa" rows="3">${esc(p.keterangan || '')}</textarea></div>
+    ${medanGambar('fG', p.gambar, '1:1')}
     <div class="grid2">
       <div class="medan"><label for="fU">Susunan (pilihan)</label><input class="input" id="fU" inputmode="numeric" value="${esc(p.susunan)}"></div>
       <div class="medan"><label for="fA">Papar di laman</label><select id="fA"><option value="YA">Ya</option><option value="TIDAK" ${p.aktif === 'TIDAK' ? 'selected' : ''}>Tidak</option></select></div>
@@ -274,9 +306,10 @@ function borangProduk(id) {
     <div id="eD"></div>
     <div class="deret"><button class="btn" id="okD">Simpan</button>${id ? '<button class="btn bahaya" id="padam">Padam</button>' : ''}<button class="btn kedua" onclick="tutup()">Batal</button></div>`);
   $('okD').onclick = borangAksi('okD', async () => {
-    await api('aProdukSimpan', { pin: PIN, data: { id, nama: $('fN').value, sku: $('fS').value, kategori: $('fK').value, harga: $('fH').value, stok: $('fT').value, gambar: $('fG').value, susunan: $('fU').value, aktif: $('fA').value } });
+    await api('aProdukSimpan', { pin: PIN, data: { id, nama: $('fN').value, sku: $('fS').value, kategori: $('fK').value, harga: $('fH').value, stok: $('fT').value, gambar: $('fG').value, keterangan: $('fKet').value, susunan: $('fU').value, aktif: $('fA').value } });
     muatProduk();
   }, 'Disimpan');
+  pasangGambar('fG', 1, 800, 'produk');
   if (id) $('padam').onclick = async () => { if (!confirm('Padam produk ini?')) return; await api('aProdukPadam', { pin: PIN, id }); tutup(); muatProduk(); toast('Dipadam'); };
 }
 
@@ -420,6 +453,91 @@ $('borangTetapan').addEventListener('submit', async e => {
     $('eTet').innerHTML = r.amaran ? ralatHtml(r.amaran) : '<div class="mesej ok">Tetapan disimpan. Kadar baharu digunakan untuk order seterusnya.</div>';
   } catch (err) { $('eTet').innerHTML = ralatHtml(err.message); }
 });
+
+/* ---------- Muat naik gambar (dipotong ikut nisbah, dimampatkan) ---------- */
+function medanGambar(id, url, nisbah) {
+  return `<div class="medan"><label for="${id}F">Gambar (${nisbah})</label>
+    <div class="pilih-gambar ${nisbah === '16:9' ? 'lebar' : ''}">
+      <div class="pg-pratonton" id="${id}P">${url ? `<img src="${esc(url)}" alt="">` : '<span>Tiada gambar</span>'}</div>
+      <div><input type="file" id="${id}F" accept="image/*">
+      <p class="kecil" id="${id}S" style="margin:.4rem 0 0">Gambar akan dipotong ke tengah ikut nisbah ${nisbah}.</p></div>
+    </div><input type="hidden" id="${id}" value="${esc(url || '')}"></div>`;
+}
+
+function pasangGambar(id, nisbah, lebar, nama) {
+  $(id + 'F').addEventListener('change', async e => {
+    const fail = e.target.files[0]; if (!fail) return;
+    const st = $(id + 'S'); st.textContent = 'Memproses gambar…';
+    try {
+      const data = await potongGambar(fail, nisbah, lebar);
+      $(id + 'P').innerHTML = `<img src="${data}" alt="">`;
+      st.textContent = 'Memuat naik…';
+      const ok = $('okD'); if (ok) ok.disabled = true;
+      const r = await api('aGambar', { pin: PIN, data, nama });
+      $(id).value = r.url; st.textContent = 'Gambar sedia. Tekan Simpan.';
+      if (ok) ok.disabled = false;
+    } catch (err) { st.textContent = err.message || 'Gagal memuat naik gambar.'; const ok = $('okD'); if (ok) ok.disabled = false; }
+  });
+}
+
+function potongGambar(fail, nisbah, lebar) {
+  return new Promise((jadi, gagal) => {
+    const img = new Image();
+    img.onload = () => {
+      const tinggi = Math.round(lebar / nisbah);
+      let sw = img.width, sh = img.width / nisbah;
+      if (sh > img.height) { sh = img.height; sw = img.height * nisbah; }
+      const c = document.createElement('canvas'); c.width = lebar; c.height = tinggi;
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, lebar, tinggi);
+      x.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, lebar, tinggi);
+      URL.revokeObjectURL(img.src);
+      jadi(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => gagal(new Error('Fail ini bukan gambar yang sah.'));
+    img.src = URL.createObjectURL(fail);
+  });
+}
+
+/* ---------- Laman: poster hero & kad artikel ---------- */
+let KD = { slaid: [], artikel: [] };
+async function muatKandungan() {
+  const [s, a] = await Promise.all([api('aKandungan', { pin: PIN, jenis: 'slaid' }), api('aKandungan', { pin: PIN, jenis: 'artikel' })]);
+  KD.slaid = s.senarai; KD.artikel = a.senarai;
+  $('lSlaid').innerHTML = KD.slaid.length ? KD.slaid.map(x => `<li ${x.aktif === 'TIDAK' ? 'class="pudar"' : ''}>
+      <div class="sk-img lebar">${x.gambar ? `<img src="${esc(x.gambar)}" alt="">` : ''}</div>
+      <div class="sk-info"><b>${esc(x.tajuk || 'Tanpa tajuk')}</b><div class="kecil">${x.link ? 'Link: ' + esc(x.link) : 'Tiada link'}${x.aktif === 'TIDAK' ? ', disembunyikan' : ''}</div></div>
+      <button class="btn kecil kedua" onclick="borangKandungan('slaid','${x.id}')">Ubah</button></li>`).join('')
+    : '<li class="kosong">Belum ada poster. Laman utama akan papar hero teks sehingga poster ditambah.</li>';
+  $('lArtikel').innerHTML = KD.artikel.length ? KD.artikel.map(x => `<li ${x.aktif === 'TIDAK' ? 'class="pudar"' : ''}>
+      <div class="sk-img">${x.gambar ? `<img src="${esc(x.gambar)}" alt="">` : ''}</div>
+      <div class="sk-info"><b>${esc(x.tajuk)}</b><div class="kecil">${esc(x.link || '')}${x.aktif === 'TIDAK' ? ', disembunyikan' : ''}</div></div>
+      <button class="btn kecil kedua" onclick="borangKandungan('artikel','${x.id}')">Ubah</button></li>`).join('')
+    : '<li class="kosong">Belum ada kad artikel.</li>';
+}
+
+function borangKandungan(jenis, id) {
+  const slaid = jenis === 'slaid';
+  const x = KD[jenis].find(k => k.id === id) || { tajuk: '', ringkas: '', gambar: '', link: '', aktif: 'YA', susunan: '' };
+  buka(`<h2>${id ? 'Ubah' : 'Tambah'} ${slaid ? 'poster' : 'kad artikel'}</h2>
+    ${medanGambar('kG', x.gambar, slaid ? '16:9' : '1:1')}
+    <div class="medan"><label for="kT">${slaid ? 'Tajuk (untuk pembaca skrin, pilihan)' : 'Tajuk'}</label><input class="input" id="kT" value="${esc(x.tajuk)}"></div>
+    ${slaid ? '' : `<div class="medan"><label for="kR">Ringkasan</label><input class="input" id="kR" value="${esc(x.ringkas)}"></div>`}
+    <div class="medan"><label for="kL">Link bila ditekan</label><input class="input" id="kL" value="${esc(x.link)}" placeholder="${slaid ? 'Contoh: /#barang atau https://wa.me/60…' : 'Contoh: /artikel/nama-artikel.html'}"></div>
+    <div class="grid2">
+      <div class="medan"><label for="kS">Susunan</label><input class="input" id="kS" inputmode="numeric" value="${esc(x.susunan)}"></div>
+      <div class="medan"><label for="kA">Papar</label><select id="kA"><option value="YA">Ya</option><option value="TIDAK" ${x.aktif === 'TIDAK' ? 'selected' : ''}>Sembunyikan</option></select></div>
+    </div>
+    <div id="eD"></div>
+    <div class="deret"><button class="btn" id="okD">Simpan</button>${id ? '<button class="btn bahaya" id="padam">Padam</button>' : ''}<button class="btn kedua" onclick="tutup()">Batal</button></div>`);
+  pasangGambar('kG', slaid ? 16 / 9 : 1, slaid ? 1600 : 800, jenis);
+  $('okD').onclick = borangAksi('okD', async () => {
+    const data = { id, gambar: $('kG').value, tajuk: $('kT').value, link: $('kL').value, susunan: $('kS').value, aktif: $('kA').value };
+    if (!slaid) data.ringkas = $('kR').value;
+    await api('aKandunganSimpan', { pin: PIN, jenis, data });
+    muatKandungan();
+  }, 'Disimpan');
+  if (id) $('padam').onclick = async () => { if (!confirm('Padam?')) return; await api('aKandunganPadam', { pin: PIN, jenis, id }); tutup(); muatKandungan(); toast('Dipadam'); };
+}
 
 if (PIN) masuk(PIN).catch(() => { simpan('kmk_apin', null); $('login').hidden = false; });
 else $('login').hidden = false;
