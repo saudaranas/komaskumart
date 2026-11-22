@@ -7,7 +7,8 @@ window.KOMASKU = {
 
   ALAMAT: 'Lot 2456, Kampung Kundur Hulu, 71400 Pedas, Negeri Sembilan',
   WAKTU: [
-    'Setiap hari, 10 pagi hingga 5 petang'
+    'Selasa hingga Ahad, 10 pagi hingga 5 petang',
+    'Tutup setiap Isnin'
   ],
   TELEFON_PAPAR: '012-383 0649',
   WHATSAPP: '60123830649',            // nombor WhatsApp KOMASKU, format 60...
