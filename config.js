@@ -23,6 +23,21 @@ if (/\/index\.html$/.test(location.pathname)) {
   history.replaceState(null, '', location.pathname.replace(/index\.html$/, '') + location.search + location.hash);
 }
 
+/* Menu hamburger untuk telefon */
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.btn-menu'), kepala = document.querySelector('.kepala');
+  if (!btn || !kepala) return;
+  const set = buka => {
+    kepala.classList.toggle('menu-buka', buka);
+    btn.setAttribute('aria-expanded', String(buka));
+    btn.setAttribute('aria-label', buka ? 'Tutup menu' : 'Buka menu');
+  };
+  btn.addEventListener('click', e => { e.stopPropagation(); set(!kepala.classList.contains('menu-buka')); });
+  document.getElementById('menuUtama').addEventListener('click', e => { if (e.target.closest('a')) set(false); });
+  document.addEventListener('click', e => { if (!kepala.contains(e.target)) set(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+});
+
 /* ---- Fungsi kongsi (jangan ubah) ---- */
 /** Link untuk dikongsi: kekalkan kod wakil supaya pelanggan baharu dikira di bawah wakil yang sama */
 function linkKongsi(url) {

@@ -10,8 +10,8 @@
 <meta property="og:image" content="https://komaskumart.com/og.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="style.css?v=2611221827">
-<script src="config.js?v=2611221827"></script>
+<link rel="stylesheet" href="style.css?v=2611221831">
+<script src="config.js?v=2611221831"></script>
 </head>
 <body class="kedai">
 
@@ -21,16 +21,20 @@
 <header class="kepala">
   <div class="wrap">
     <a class="logo" href="./"><b>KOMASKU</b><span>Kedai runcit koperasi, Kampung Kundur</span></a>
-    <nav class="nav" aria-label="Menu utama">
+    <nav class="nav" id="menuUtama" aria-label="Menu utama">
       <a href="#barang">Barang</a>
       <a href="#bacaan">Bacaan</a>
       <a href="#cara">Cara belanja</a>
       <a href="#lokasi">Lokasi</a>
+      <a href="#semak" class="nav-mobile" id="navSemak">Semak kelayakan RM10</a>
     </nav>
     <button class="btn-troli" id="btnTroliAtas" type="button" aria-label="Buka troli">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L21 7H6"/><circle cx="9.5" cy="20" r="1.5" fill="currentColor"/><circle cx="17.5" cy="20" r="1.5" fill="currentColor"/></svg>
       <span class="bt-jum" id="jumAtas">RM0.00</span>
       <span class="bt-bil bil-troli">0</span>
+    </button>
+    <button class="btn-menu" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="menuUtama">
+      <span></span><span></span><span></span>
     </button>
   </div>
 </header>
@@ -570,6 +574,8 @@ function tutupChat() {
   $('chatPanel').hidden = true; $('chatBuka').setAttribute('aria-expanded', 'false');
   document.body.classList.remove('chat-terbuka');
 }
+$('navSemak').addEventListener('click', e => { e.preventDefault(); bukaChat(); });
+if (location.hash === '#semak') setTimeout(() => bukaChat(), 600);
 $('chatBuka').addEventListener('click', () => $('chatPanel').hidden ? bukaChat() : tutupChat());
 $('chatTutup').addEventListener('click', tutupChat);
 
