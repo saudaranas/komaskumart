@@ -10,8 +10,8 @@
 <meta property="og:image" content="https://komaskumart.com/og.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="style.css">
-<script src="config.js"></script>
+<link rel="stylesheet" href="style.css?v=2611221808">
+<script src="config.js?v=2611221808"></script>
 </head>
 <body class="kedai">
 
@@ -514,7 +514,7 @@ function bukaClaim() {
     (REF ? '\nKod wakil: ' + REF : '');
   $('claimWa').href = 'https://wa.me/' + KOMASKU.WHATSAPP + '?text=' + encodeURIComponent(mesej);
   if (!d.open) d.showModal();
-  simpan('kmk_claim', String(Date.now()), true);
+  simpan('kmk_claim', '1');
 }
 function tutupClaim(ke) {
   $('dlgClaim').close();
@@ -531,8 +531,7 @@ $('claimSemak').addEventListener('click', () => { $('dlgClaim').close(); bukaCha
 if (location.hash === '#claim') bukaClaim();
 // Muncul sendiri 3 saat selepas masuk, sekali dalam 24 jam
 else {
-  const akhir = Number(ambil('kmk_claim', true)) || 0;
-  if (Date.now() - akhir > 24 * 3600 * 1000) setTimeout(() => { if (!$('dlg').open) bukaClaim(); }, 3000);
+  if (!ambil('kmk_claim')) setTimeout(() => { if (!$('dlg').open) bukaClaim(); }, 3000);
 }
 
 /* ---------- Chatbot semak kelayakan ---------- */
