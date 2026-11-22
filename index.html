@@ -10,8 +10,8 @@
 <meta property="og:image" content="https://komaskumart.com/og.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="style.css?v=2611221834">
-<script src="config.js?v=2611221834"></script>
+<link rel="stylesheet" href="style.css?v=2611221839">
+<script src="config.js?v=2611221839"></script>
 </head>
 <body class="kedai">
 
@@ -88,6 +88,33 @@
   </section>
 
   <!-- ARTIKEL -->
+  <section class="seksyen seksyen-tunai" id="tunai" aria-labelledby="tunaiTajuk">
+    <div class="wrap">
+      <div class="tunai-isi">
+        <p class="tunai-label">Untuk penerima bantuan zakat</p>
+        <h2 id="tunaiTajuk">Belanja RM200, bawa balik tunai RM10</h2>
+        <p>Setiap bulan, belanja bantuan dalam IC anda di KOMASKU dan terima tunai RM10. Semak nama anda dalam senarai, dapatkan kod, kemudian pilih cara yang paling mudah untuk anda.</p>
+        <ul class="tunai-cara">
+          <li><b>Datang ke kedai</b> dengan IC dan tunjuk kod di kaunter.</li>
+          <li><b>Order di sini</b> dan team KOMASKU hantar ke rumah.</li>
+        </ul>
+        <div class="deret">
+          <button class="btn btn-kunyit" type="button" id="tunaiSemak">Semak nama saya</button>
+          <a class="btn btn-garis" href="#barang">Pilih barang</a>
+        </div>
+      </div>
+      <div class="slot" aria-label="Contoh resit: barang RM200 dan tunai RM10, jumlah RM210">
+        <div class="resit-bayang"><div class="resit" aria-hidden="true">
+          <div class="tengah tajuk">KOMASKU</div><div class="tengah kaki">Kampung Kundur</div><hr class="putus">
+          <div class="baris"><span>Barang (bayar guna IC)</span><span>200.00</span></div>
+          <div class="baris tambah"><span>Tunai untuk anda</span><span>10.00</span></div><hr class="putus">
+          <div class="baris jumlah"><span>Anda dapat</span><span>RM210.00</span></div><hr class="putus">
+          <div class="tengah kaki">Tunai RM10 setiap bulan.</div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
   <section class="seksyen" id="bacaan" aria-roledescription="carousel" aria-label="Bacaan">
     <div class="wrap">
       <div class="tajuk-baris">
@@ -573,6 +600,7 @@ function tutupChat() {
   $('chatPanel').hidden = true; $('chatBuka').setAttribute('aria-expanded', 'false');
   document.body.classList.remove('chat-terbuka');
 }
+$('tunaiSemak').addEventListener('click', () => bukaChat(true));
 $('navSemak').addEventListener('click', e => { e.preventDefault(); bukaChat(); });
 if (location.hash === '#semak') setTimeout(() => bukaChat(), 600);
 $('chatBuka').addEventListener('click', () => $('chatPanel').hidden ? bukaChat() : tutupChat());
