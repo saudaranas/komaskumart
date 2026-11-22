@@ -560,3 +560,4 @@ body.chat-terbuka .chat-buka { display: none; }
 .seksyen-tunai .btn:focus-visible { outline: 3px solid var(--kunyit); outline-offset: 3px; }
 .seksyen-tunai .slot { display: flex; justify-content: center; }
 .seksyen-tunai .resit { color: var(--dakwat); }
+.seksyen-tunai .tunai-nota { font-size: .95rem; color: rgba(255, 255, 255, .75); margin: -.75rem 0 1.5rem; }

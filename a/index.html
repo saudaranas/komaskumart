@@ -6,8 +6,8 @@
 <meta name="robots" content="noindex">
 <title>Dashboard wakil – KOMASKU</title>
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="../style.css?v=2611221839">
-<script src="../config.js?v=2611221839"></script>
+<link rel="stylesheet" href="../style.css?v=2611221851">
+<script src="../config.js?v=2611221851"></script>
 </head>
 <body class="app">
 <header class="app-kepala"><div class="wrap"><b>KOMASKU</b><span id="bulanLabel"></span></div></header>
@@ -201,7 +201,7 @@ function lukisPelanggan() {
   const baris = p => `<li><div class="nama">${esc(p.nama)}</div>
     <div class="info">${esc(p.kampung || '')}${p.kampung ? ', ' : ''}IC hujung ${esc(p.ic4)}${p.beliTerakhir ? ', beli terakhir ' + tarikh(p.beliTerakhir) : ''}</div>
     <div class="aksi"><a class="btn kecil" href="${esc(D.link)}" target="_blank" rel="noopener">Order untuk dia</a>
-    ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Bantuan bulan ini sudah masuk. Boleh belanja di KOMASKU dan terima tunai RM${D.kadar.bonus}. Nak saya bantu order? Pilih barang di sini: ${D.link}`))}">Ingatkan</a>` : ''}</div></li>`;
+    ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Bantuan bulan ini sudah masuk. Habiskan bantuan di KOMASKU dan terima tunai RM${D.kadar.bonus}. Nak saya bantu order? Pilih barang di sini: ${D.link}`))}">Ingatkan</a>` : ''}</div></li>`;
   $('cBelum').textContent = belum.length + ' orang'; $('cSudah').textContent = sudah.length + ' orang';
   $('lBelum').innerHTML = belum.length ? belum.map(baris).join('') : `<li class="kosong">${D.pelanggan.length ? 'Semua pelanggan sudah beli bulan ini.' : 'Belum ada pelanggan tetap. Pelanggan jadi milik anda bila mereka beli melalui link atau kod anda.'}</li>`;
   $('lSudah').innerHTML = sudah.length ? sudah.map(baris).join('') : '<li class="kosong">Belum ada.</li>';
@@ -219,7 +219,7 @@ function lukisProspek() {
     <div class="aksi">
       ${!p.dijumpai ? `<button class="btn kecil" onclick="jumpa('${p.id}')">Tanda dah jumpa</button>` : ''}
       <a class="btn kecil ${p.dijumpai ? '' : 'kedua'}" href="${esc(D.link)}" target="_blank" rel="noopener">Order untuk dia</a>
-      ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Saya ${D.aff.nama}, wakil KOMASKU. Bantuan RM200 boleh dibelanjakan di KOMASKU dan anda terima tunai RM${D.kadar.bonus} setiap bulan. Pilih barang di sini: ${D.link}`))}">WhatsApp</a>` : ''}
+      ${p.telefon ? `<a class="btn kecil kedua" target="_blank" rel="noopener" href="${esc(waLink(p.telefon, `Assalamualaikum ${p.nama}. Saya ${D.aff.nama}, wakil KOMASKU. Bantuan zakat dalam IC boleh dibelanjakan di KOMASKU, dan bila dibelanjakan sepenuhnya anda terima tunai RM${D.kadar.bonus} setiap bulan. Pilih barang di sini: ${D.link}`))}">WhatsApp</a>` : ''}
       ${p.dijumpai && p.olehSaya ? `<button class="btn kecil bahaya" onclick="jumpa('${p.id}', true)">Batal tanda</button>` : ''}
     </div></li>`;
   $('cPros1').textContent = belum.length + ' orang'; $('cPros2').textContent = sudah.length + ' orang';
@@ -279,7 +279,7 @@ function kongsi(tajuk, teks) {
     <button class="btn kedua penuh" style="margin-top:.6rem" onclick="tutup()">Tutup</button>`);
 }
 $('btnKongsi').addEventListener('click', () => kongsi('Kongsi link kedai',
-  `Assalamualaikum. Bantuan RM200 dalam IC boleh dibelanjakan di KOMASKU, kedai koperasi Kampung Kundur. Anda terima tunai RM${D.kadar.bonus} setiap bulan.\n\nPilih barang di sini, kami hantar ke rumah:\n${D.link}\n\nAtau datang ke kedai dan tunjuk kod: ${D.aff.kod}`));
+  `Assalamualaikum. Bantuan zakat dalam IC boleh dibelanjakan di KOMASKU, kedai koperasi Kampung Kundur. Habiskan bantuan di KOMASKU dan terima tunai RM${D.kadar.bonus} setiap bulan.\n\nPilih barang di sini, kami hantar ke rumah:\n${D.link}\n\nAtau datang ke kedai dan tunjuk kod: ${D.aff.kod}`));
 $('btnDaftar').addEventListener('click', () => kongsi('Kongsi link daftar wakil',
   `Assalamualaikum. Jom jadi wakil KOMASKU dan bantu jiran belanja bantuan mereka di kedai koperasi kampung. Daftar di sini:\n${D.linkDaftar}`));
 

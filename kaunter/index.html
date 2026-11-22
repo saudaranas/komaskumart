@@ -6,8 +6,8 @@
 <meta name="robots" content="noindex">
 <title>Kaunter – KOMASKU</title>
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="../style.css?v=2611221839">
-<script src="../config.js?v=2611221839"></script>
+<link rel="stylesheet" href="../style.css?v=2611221851">
+<script src="../config.js?v=2611221851"></script>
 <style>
   .hasil-cari { list-style: none; padding: 0; margin: .75rem 0 0; }
   .hasil-cari button { width: 100%; text-align: left; background: var(--putih); border: 2px solid var(--garis); border-radius: 6px; padding: .75rem 1rem; margin-bottom: .5rem; font: 1.05rem var(--f); cursor: pointer; color: var(--dakwat); }
@@ -61,7 +61,7 @@
 
 <script>
 const $ = id => document.getElementById(id);
-let PIN = ambil('kmk_kpin'), BONUS = KOMASKU.BONUS, ORDER = [], HASIL = [];
+let PIN = ambil('kmk_kpin'), BONUS = KOMASKU.BONUS, MIN_TUNAI = KOMASKU.BANTUAN, ORDER = [], HASIL = [];
 
 function paparHariIni(list) {
   $('bilHari').textContent = list.length + ' jualan';
@@ -72,7 +72,7 @@ function paparHariIni(list) {
 
 async function masuk(pin) {
   const r = await api('kLogin', { pin });
-  PIN = pin; simpan('kmk_kpin', pin); BONUS = r.bonus;
+  PIN = pin; simpan('kmk_kpin', pin); BONUS = r.bonus; MIN_TUNAI = r.minBelanja || MIN_TUNAI;
   $('login').hidden = true; $('kerja').hidden = false; $('keluar').hidden = false;
   paparHariIni(r.hariIni); muatOrder(); $('cari').focus();
 }
@@ -114,7 +114,9 @@ function borangJual(p, baru) {
               <p class="kecil">IC: ${esc(p.ic)}</p>` : `<p class="kecil">IC hujung ${esc(p.ic4)}${p.kampung ? ', ' + esc(p.kampung) : ''}</p>`}
     ${p.affiliate ? `<p>Pelanggan tetap <b>${esc(p.affiliate)}</b>. Tak perlu kod.</p>`
       : `<div class="medan"><label for="jKod">Kod wakil (jika ada)</label><input class="input kod" id="jKod" autocapitalize="characters" placeholder="Contoh: SALMAN"></div>`}
-    ${p.affiliate ? (p.bonusLayak ? `<div class="bonus-besar">Layak tunai RM${BONUS} bulan ini</div>` : `<p class="nota">Tunai RM${BONUS} sudah diterima bulan ini.</p>`) : ''}
+    ${p.affiliate ? (p.bonusLayak
+      ? `<p class="nota">Belian bulan ini: <b>${rm(p.belanjaBulan)}</b>. Tunai RM${BONUS} bila jumlah cukup ${rm(MIN_TUNAI)} (baki <b>${rm(p.baki)}</b>).</p>`
+      : `<p class="nota">Tunai RM${BONUS} sudah diterima bulan ini.</p>`) : ''}
     <div class="medan"><label for="jJum">Jumlah ditolak daripada IC (RM)</label><input class="input" id="jJum" inputmode="decimal" value="200"></div>
     <div class="medan"><label for="jResit">No. resit terminal (pilihan)</label><input class="input" id="jResit"></div>
     <div id="eJ"></div>
@@ -128,7 +130,10 @@ function borangJual(p, baru) {
     try {
       const r = await api('kJual', data);
       $('jualan').innerHTML = `<div class="panel"><h2>Jualan ${esc(r.no)} direkod</h2>
-        ${r.bonus ? `<div class="bonus-besar">Beri tunai RM${r.bonus} kepada pelanggan</div>` : '<p>Tiada tunai untuk jualan ini.</p>'}
+        ${r.bonus ? `<div class="bonus-besar">Beri tunai RM${r.bonus} kepada pelanggan</div>`
+          : r.sudahTerima ? '<p>Tunai bulan ini sudah diterima.</p>'
+          : r.affiliate ? `<p>Belum cukup untuk tunai. Belian bulan ini ${rm(r.belanjaBulan)}, baki ${rm(r.baki)} lagi.</p>`
+          : '<p>Tiada tunai: pelanggan belum ada wakil.</p>'}
         ${r.affiliate ? `<p>Pelanggan tetap ${esc(r.affiliate)}.</p>` : ''}
         <button class="btn penuh" type="button" onclick="$('jualan').innerHTML='';$('cari').value='';$('cari').focus()">Pelanggan seterusnya</button></div>`;
       const l = await api('kLogin', { pin: PIN }); paparHariIni(l.hariIni);
