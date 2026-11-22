@@ -160,8 +160,8 @@ p { margin: 0 0 1em; }
 .lokasi dd { margin: 0; }
 @media (max-width: 560px) { .lokasi { grid-template-columns: 1fr; gap: .15rem; } .lokasi dd { margin-bottom: .9rem; } }
 
-.kaki-laman { border-top: 1px solid var(--garis); padding: 2rem 0 3rem; font-size: .95rem; color: var(--kelabu); }
-.kaki-laman .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+.kaki-laman { border-top: 1px solid var(--garis); padding: 1.75rem 0 5.5rem; font-size: .95rem; color: var(--kelabu); text-align: center; }
+.kaki-laman p { margin: 0; }
 
 /* ---------- Artikel ---------- */
 .artikel { padding: 2.5rem 0 4rem; }
