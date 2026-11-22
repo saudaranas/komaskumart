@@ -203,8 +203,14 @@ async function muatLaman() {
 function lukisHero(slaid) {
   if (!slaid || !slaid.length) { $('heroTeks').hidden = false; return; }
   $('heroSlaid').hidden = false;
+  // Poster 4:5 untuk telefon jika ada; jika tiada, poster 16:9 dipaparkan penuh
+  const adaMobile = slaid.some(s => s.gambar_mobile);
+  document.querySelector('.slaid-bingkai').classList.toggle('ada-mobile', adaMobile);
   $('heroTrek').innerHTML = slaid.map((s, i) => {
-    const img = `<img src="${esc(s.gambar)}" alt="${esc(s.tajuk || 'Promosi KOMASKU')}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}>`;
+    const alt = esc(s.tajuk || 'Promosi KOMASKU'), muat = i ? 'loading="lazy"' : 'fetchpriority="high"';
+    const img = s.gambar_mobile
+      ? `<picture><source media="(max-width: 640px)" srcset="${esc(s.gambar_mobile)}"><img src="${esc(s.gambar)}" alt="${alt}" ${muat}></picture>`
+      : `<img class="tiada-m" src="${esc(s.gambar)}" alt="${alt}" ${muat}>`;
     const luar = /^https?:/.test(s.link || '') && !s.link.includes(location.host);
     return `<div class="slaid" role="group" aria-label="Slaid ${i + 1} daripada ${slaid.length}">
       ${s.link ? `<a href="${esc(s.link)}" ${luar ? 'target="_blank" rel="noopener"' : ''}>${img}</a>` : img}</div>`;

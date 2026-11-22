@@ -25,6 +25,8 @@
   .pilih-gambar.lebar { grid-template-columns: 12rem 1fr; }
   .pg-pratonton { aspect-ratio: 1 / 1; border: 1px solid var(--garis); border-radius: 8px; overflow: hidden; display: grid; place-items: center; background: #f2f5f1; font-size: .85rem; color: var(--kelabu); }
   .pilih-gambar.lebar .pg-pratonton { aspect-ratio: 16 / 9; }
+  .pilih-gambar.tegak .pg-pratonton { aspect-ratio: 4 / 5; }
+  .sk-img.tegak { width: 3.6rem; aspect-ratio: 4 / 5; }
   .pilih-gambar > div { min-width: 0; }
   .pilih-gambar input[type=file] { max-width: 100%; font-size: .9rem; }
   dialog:has(.pilih-gambar.lebar) { width: min(36rem, calc(100% - 2rem)); }
@@ -138,7 +140,7 @@
 
       <!-- LAMAN: slaid hero & kad artikel -->
       <section id="tab-laman" hidden>
-        <div class="atas"><div><h2 style="margin:0">Poster hero</h2><p class="kecil" style="margin:.2rem 0 0">Nisbah 16:9 (contoh 1600 × 900 piksel). Bertukar sendiri setiap 5 saat.</p></div>
+        <div class="atas"><div><h2 style="margin:0">Poster hero</h2><p class="kecil" style="margin:.2rem 0 0">Komputer 1600 × 900 (16:9), telefon 1080 × 1350 (4:5). Bertukar sendiri setiap 5 saat.</p></div>
           <button class="btn" onclick="borangKandungan('slaid')">Tambah poster</button></div>
         <ul class="senarai-kandungan" id="lSlaid"></ul>
         <div class="atas" style="margin-top:2rem"><div><h2 style="margin:0">Kad artikel</h2><p class="kecil" style="margin:.2rem 0 0">Gambar 1:1. Dipaparkan dalam carousel di bawah senarai barang.</p></div>
@@ -457,7 +459,7 @@ $('borangTetapan').addEventListener('submit', async e => {
 /* ---------- Muat naik gambar (dipotong ikut nisbah, dimampatkan) ---------- */
 function medanGambar(id, url, nisbah) {
   return `<div class="medan"><label for="${id}F">Gambar (${nisbah})</label>
-    <div class="pilih-gambar ${nisbah === '16:9' ? 'lebar' : ''}">
+    <div class="pilih-gambar ${nisbah === '16:9' ? 'lebar' : nisbah === '4:5' ? 'tegak' : ''}">
       <div class="pg-pratonton" id="${id}P">${url ? `<img src="${esc(url)}" alt="">` : '<span>Tiada gambar</span>'}</div>
       <div><input type="file" id="${id}F" accept="image/*">
       <p class="kecil" id="${id}S" style="margin:.4rem 0 0">Gambar akan dipotong ke tengah ikut nisbah ${nisbah}.</p></div>
@@ -505,7 +507,8 @@ async function muatKandungan() {
   KD.slaid = s.senarai; KD.artikel = a.senarai;
   $('lSlaid').innerHTML = KD.slaid.length ? KD.slaid.map(x => `<li ${x.aktif === 'TIDAK' ? 'class="pudar"' : ''}>
       <div class="sk-img lebar">${x.gambar ? `<img src="${esc(x.gambar)}" alt="">` : ''}</div>
-      <div class="sk-info"><b>${esc(x.tajuk || 'Tanpa tajuk')}</b><div class="kecil">${x.link ? 'Link: ' + esc(x.link) : 'Tiada link'}${x.aktif === 'TIDAK' ? ', disembunyikan' : ''}</div></div>
+      <div class="sk-img tegak">${x.gambar_mobile ? `<img src="${esc(x.gambar_mobile)}" alt="">` : ''}</div>
+      <div class="sk-info"><b>${esc(x.tajuk || 'Tanpa tajuk')}</b><div class="kecil">${x.link ? 'Link: ' + esc(x.link) : 'Tiada link'}${x.gambar_mobile ? '' : ', tiada poster telefon'}${x.aktif === 'TIDAK' ? ', disembunyikan' : ''}</div></div>
       <button class="btn kecil kedua" onclick="borangKandungan('slaid','${x.id}')">Ubah</button></li>`).join('')
     : '<li class="kosong">Belum ada poster. Laman utama akan papar hero teks sehingga poster ditambah.</li>';
   $('lArtikel').innerHTML = KD.artikel.length ? KD.artikel.map(x => `<li ${x.aktif === 'TIDAK' ? 'class="pudar"' : ''}>
@@ -519,7 +522,9 @@ function borangKandungan(jenis, id) {
   const slaid = jenis === 'slaid';
   const x = KD[jenis].find(k => k.id === id) || { tajuk: '', ringkas: '', gambar: '', link: '', aktif: 'YA', susunan: '' };
   buka(`<h2>${id ? 'Ubah' : 'Tambah'} ${slaid ? 'poster' : 'kad artikel'}</h2>
-    ${medanGambar('kG', x.gambar, slaid ? '16:9' : '1:1')}
+    ${slaid ? '<p class="kecil" style="margin:0 0 .5rem">Poster komputer 1600 × 900 (16:9). Poster telefon 1080 × 1350 (4:5), pilihan tetapi disyorkan.</p>' : ''}
+    ${slaid ? medanGambar('kG', x.gambar, '16:9').replace('Gambar (16:9)', 'Poster komputer (16:9)') : medanGambar('kG', x.gambar, '1:1')}
+    ${slaid ? medanGambar('kM', x.gambar_mobile, '4:5').replace('Gambar (4:5)', 'Poster telefon (4:5)') : ''}
     <div class="medan"><label for="kT">${slaid ? 'Tajuk (untuk pembaca skrin, pilihan)' : 'Tajuk'}</label><input class="input" id="kT" value="${esc(x.tajuk)}"></div>
     ${slaid ? '' : `<div class="medan"><label for="kR">Ringkasan</label><input class="input" id="kR" value="${esc(x.ringkas)}"></div>`}
     <div class="medan"><label for="kL">Link bila ditekan</label><input class="input" id="kL" value="${esc(x.link)}" placeholder="${slaid ? 'Contoh: /#barang atau https://wa.me/60…' : 'Contoh: /artikel/nama-artikel.html'}"></div>
@@ -530,9 +535,10 @@ function borangKandungan(jenis, id) {
     <div id="eD"></div>
     <div class="deret"><button class="btn" id="okD">Simpan</button>${id ? '<button class="btn bahaya" id="padam">Padam</button>' : ''}<button class="btn kedua" onclick="tutup()">Batal</button></div>`);
   pasangGambar('kG', slaid ? 16 / 9 : 1, slaid ? 1600 : 800, jenis);
+  if (slaid) pasangGambar('kM', 4 / 5, 1080, 'slaid-telefon');
   $('okD').onclick = borangAksi('okD', async () => {
     const data = { id, gambar: $('kG').value, tajuk: $('kT').value, link: $('kL').value, susunan: $('kS').value, aktif: $('kA').value };
-    if (!slaid) data.ringkas = $('kR').value;
+    if (!slaid) data.ringkas = $('kR').value; else data.gambar_mobile = $('kM').value;
     await api('aKandunganSimpan', { pin: PIN, jenis, data });
     muatKandungan();
   }, 'Disimpan');

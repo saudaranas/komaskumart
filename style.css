@@ -407,3 +407,10 @@ textarea.teks-biasa { font-family: var(--f); font-size: 1.05rem; min-height: 5re
 .troli li .r-harga { grid-area: auto; }
 .troli li > div { grid-area: auto !important; }
 body.ada-troli .toast { bottom: 5.5rem; }
+
+/* Poster versi telefon (4:5) */
+.slaid picture { display: block; width: 100%; height: 100%; }
+@media (max-width: 640px) {
+  .slaid-bingkai.ada-mobile { aspect-ratio: 4 / 5; }
+  .slaid-bingkai.ada-mobile .slaid img.tiada-m { object-fit: contain; }
+}
