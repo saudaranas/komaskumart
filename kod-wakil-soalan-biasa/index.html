@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kod wakil KOMASKU: soalan biasa – KOMASKU</title>
+<meta name="description" content="Bila perlu tunjuk kod, dan apa perlu buat kalau terlupa.">
+<meta property="og:title" content="Kod wakil KOMASKU: soalan biasa">
+<meta property="og:description" content="Bila perlu tunjuk kod, dan apa perlu buat kalau terlupa.">
+<meta property="og:image" content="https://komaskumart.com/artikel/img/kod-wakil-soalan-biasa-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://komaskumart.com/kod-wakil-soalan-biasa">
+<link rel="canonical" href="https://komaskumart.com/kod-wakil-soalan-biasa">
+<meta property="og:site_name" content="KOMASKU">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:type" content="article">
+<meta name="theme-color" content="#1b4d2e">
+<link rel="stylesheet" href="/style.css?v=2611221825">
+<script src="/config.js?v=2611221825"></script>
+</head>
+<body>
+<a class="bar-atas" href="/#claim">Claim RM10, bila dapatkan barang zakat di KOMASKU! <span class="pil">Claim</span></a>
+<header class="kepala">
+  <div class="wrap">
+    <a class="logo" href="/"><b>KOMASKU</b><span>Kedai runcit koperasi, Kampung Kundur</span></a>
+    <nav class="nav" aria-label="Menu utama">
+      <a href="/#barang">Barang</a>
+      <a href="/#cara">Cara belanja</a>
+      <a href="/#lokasi">Lokasi</a>
+    </nav>
+  </div>
+</header>
+<main class="artikel">
+  <div class="wrap">
+    <a class="balik" href="/#bacaan">Semua bacaan</a>
+    <h1>Kod wakil KOMASKU: soalan biasa</h1>
+    <p class="ringkas">Bila perlu tunjuk kod, dan apa perlu buat kalau terlupa.</p>
+    <button class="btn-kongsi" type="button" id="kongsiAtas"></button>
+    <figure class="art-gambar" id="artGambar"><img alt="" src="/artikel/img/kod-wakil-soalan-biasa-og.jpg"></figure>
+
+<p>Kod wakil ialah kod pendek yang diberi oleh wakil KOMASKU kepada anda. Kod ini mendaftarkan anda sebagai pelanggan wakil tersebut, supaya anda terima tunai RM10 setiap bulan.</p>
+
+<h2>Bila perlu tunjuk kod?</h2>
+<p>Sekali sahaja, iaitu semasa belian pertama. Kalau anda order melalui link yang dihantar oleh wakil, kod sudah dimasukkan secara automatik.</p>
+
+<h2>Bulan depan perlu tunjuk lagi?</h2>
+<p>Tidak. Selepas belian pertama, nama anda sudah ada dalam sistem. Beritahu nama anda di kaunter, dan staf akan nampak anda layak untuk tunai RM10 bulan itu.</p>
+
+<h2>Saya terlupa kod wakil</h2>
+<p>Kalau anda sudah pernah membeli, kod tidak diperlukan lagi. Kalau belum, hubungi wakil yang berjumpa anda, atau tanya staf di kaunter.</p>
+
+<h2>Saya tak kenal mana-mana wakil</h2>
+<p>Datang terus ke KOMASKU atau WhatsApp kami. Kami akan bantu daftarkan anda.</p>
+
+<h2>Bila tunai RM10 diberi?</h2>
+<p>Sekali sebulan, pada belian pertama anda bulan itu, sama ada di kedai atau melalui order.</p>
+
+<div class="kotak">
+  <p>Bantuan RM200 dalam IC anda boleh digunakan di KOMASKU dengan atau tanpa kod. Kod hanya untuk tunai RM10.</p>
+</div>
+
+    <div class="kongsi-bawah">
+      <p>Rasa artikel ini berguna untuk jiran atau keluarga?</p>
+      <button class="btn" type="button" id="kongsiBawah"></button>
+    </div>
+    <h2>Bacaan lain</h2>
+    <ul class="senarai-artikel">
+      <li><a href="/cara-belanja-di-komasku">Cara belanja bantuan RM200 dan terima tunai RM10 di KOMASKU</a><p>Di kedai atau order untuk dihantar: apa yang perlu dibawa dan apa yang berlaku.</p></li>
+      <li><a href="/senarai-barang-dapur-sebulan">Senarai barang dapur asas untuk sebulan</a><p>Susunan belanja supaya bantuan cukup sampai hujung bulan.</p></li>
+      <li><a href="/kenapa-belanja-di-koperasi-kampung">Kenapa belanja di koperasi kampung sendiri</a><p>Ke mana perginya duit yang anda belanjakan di KOMASKU.</p></li>
+    </ul>
+  </div>
+</main>
+<footer class="kaki-laman">
+  <div class="wrap">
+    <span>KOMASKU, koperasi Kampung Kundur</span>
+    <a data-k="WA" href="#">WhatsApp KOMASKU</a>
+  </div>
+</footer>
+<script>
+isiInfoKedai();
+const tajukArt = document.querySelector('h1').textContent;
+[['kongsiAtas', 'Kongsi'], ['kongsiBawah', 'Kongsi artikel ini']].forEach(([id, label]) => {
+  const b = document.getElementById(id);
+  b.innerHTML = IKON_KONGSI + ' ' + label;
+  b.addEventListener('click', () => kongsiLink(tajukArt, location.origin + '/kod-wakil-soalan-biasa'));
+});
+// Gambar artikel diurus dari admin (sheet Artikel), dipadankan ikut link halaman ini
+fetch(KOMASKU.API + '?a=laman').then(r => r.json()).then(j => {
+  const slugDari = l => String(l || '').replace(/[?#].*$/, '').replace(/\.html$/, '').replace(/\/+$/, '').split('/').pop();
+  const a = (j.artikel || []).find(x => slugDari(x.link) === 'kod-wakil-soalan-biasa');
+  const f = document.getElementById('artGambar');
+  if (!f.hidden && !(a && a.gambar_besar)) return; // gambar statik sudah dipaparkan
+  const src = a && (a.gambar_besar || a.gambar);
+  if (!src) return;
+  f.classList.toggle('segi', !a.gambar_besar);
+  f.innerHTML = '<img alt="" src="' + esc(src) + '">';
+  f.hidden = false;
+}).catch(() => {});
+</script>
+</body>
+</html>

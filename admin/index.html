@@ -6,8 +6,8 @@
 <meta name="robots" content="noindex">
 <title>Admin – KOMASKU</title>
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="../style.css?v=2611221822">
-<script src="../config.js?v=2611221822"></script>
+<link rel="stylesheet" href="../style.css?v=2611221825">
+<script src="../config.js?v=2611221825"></script>
 <style>
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
   @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
@@ -532,7 +532,7 @@ function borangKandungan(jenis, id) {
     <div class="medan"><label for="kT">${slaid ? 'Tajuk (untuk pembaca skrin, pilihan)' : 'Tajuk'}</label><input class="input" id="kT" value="${esc(x.tajuk)}"></div>
     ${slaid ? '' : '<p class="kecil" style="margin:-.4rem 0 .9rem">Gambar kad 1:1 (800 × 800) untuk senarai bacaan. Gambar halaman artikel 1200 × 630, juga saiz yang dipaparkan bila link dikongsi. Jika tiada, gambar kad digunakan.</p>'}
     ${slaid ? '' : `<div class="medan"><label for="kR">Ringkasan</label><input class="input" id="kR" value="${esc(x.ringkas)}"></div>`}
-    <div class="medan"><label for="kL">Link bila ditekan</label><input class="input" id="kL" value="${esc(x.link)}" placeholder="${slaid ? 'Contoh: /#barang atau https://wa.me/60…' : 'Contoh: /artikel/nama-artikel.html'}"></div>
+    <div class="medan"><label for="kL">Link bila ditekan</label><input class="input" id="kL" value="${esc(x.link)}" placeholder="${slaid ? 'Contoh: /#barang atau https://wa.me/60…' : 'Contoh: /cara-belanja-di-komasku'}"></div>
     <div class="grid2">
       <div class="medan"><label for="kS">Susunan</label><input class="input" id="kS" inputmode="numeric" value="${esc(x.susunan)}"></div>
       <div class="medan"><label for="kA">Papar</label><select id="kA"><option value="YA">Ya</option><option value="TIDAK" ${x.aktif === 'TIDAK' ? 'selected' : ''}>Sembunyikan</option></select></div>

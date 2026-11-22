@@ -10,8 +10,8 @@
 <meta property="og:image" content="https://komaskumart.com/og.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#1b4d2e">
-<link rel="stylesheet" href="style.css?v=2611221822">
-<script src="config.js?v=2611221822"></script>
+<link rel="stylesheet" href="style.css?v=2611221825">
+<script src="config.js?v=2611221825"></script>
 </head>
 <body class="kedai">
 
@@ -291,13 +291,18 @@ function lukisHero(slaid) {
 
 /* ---------- Artikel carousel (auto setiap 5 saat) ---------- */
 // Gambar artikel disimpan dalam folder website: /artikel/img/<slug>.jpg
+// Link artikel kemas: /artikel/nama.html (lama) dibaca sebagai /nama
+function linkArtikel(link) {
+  const m = String(link || '').match(/^\/(?:artikel\/)?([a-z0-9-]+)(?:\.html)?\/?$/);
+  return m ? '/' + m[1] : (link || '#');
+}
 function gambarArtikelStatik(link) {
-  const m = String(link || '').match(/\/artikel\/([a-z0-9-]+)(\.html)?$/);
+  const m = linkArtikel(link).match(/^\/([a-z0-9-]+)$/);
   return m ? '/artikel/img/' + m[1] + '.jpg' : '';
 }
 function lukisArtikel(list) {
   if (!list || !list.length) { $('bacaan').hidden = true; return; }
-  $('artTrek').innerHTML = list.map(a => `<a class="kad-artikel" href="${esc(a.link || '#')}">
+  $('artTrek').innerHTML = list.map(a => `<a class="kad-artikel" href="${esc(linkArtikel(a.link))}">
     <div class="ka-img">${gambarHtml(a.gambar || gambarArtikelStatik(a.link))}</div>
     <div class="ka-isi"><h3>${esc(a.tajuk)}</h3>${a.ringkas ? `<p>${esc(a.ringkas)}</p>` : ''}<span class="ka-baca">Baca artikel</span></div></a>`).join('');
   const trek = $('artTrek');
