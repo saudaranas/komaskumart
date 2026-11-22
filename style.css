@@ -1,5 +1,5 @@
 /* ============ KOMASKU – style.css ============ */
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
 
 :root {
   --hijau: #1b4d2e;
@@ -14,7 +14,7 @@
   --merah: #a8261b;
   --merah-pucat: #fbe9e7;
 
-  --f: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --f: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --m: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
   --lebar: 68rem;
 }
@@ -22,7 +22,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  margin: 0; font-family: var(--f); font-size: 1.1875rem; line-height: 1.55;
+  margin: 0; font-family: var(--f); font-size: 1.0625rem; line-height: 1.6;
   color: var(--dakwat); background: var(--putih);
 }
 img { max-width: 100%; display: block; }
@@ -128,7 +128,7 @@ p { margin: 0 0 1em; }
 .papan li { display: grid; grid-template-columns: 1fr auto; gap: .25rem 1.5rem; padding: 1.1rem 1.25rem; border-top: 1px solid var(--garis); }
 .papan li:first-child { border-top: 0; }
 .papan .nama { font-weight: 700; font-size: 1.2rem; }
-.papan .harga { font-family: var(--m); font-weight: 600; font-size: 1.2rem; white-space: nowrap; }
+.papan .harga { font-family: var(--f); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 1.2rem; white-space: nowrap; }
 .papan .isi { grid-column: 1 / -1; color: var(--kelabu); font-size: 1.02rem; }
 .papan .kosong { display: block; color: var(--kelabu); }
 
@@ -267,7 +267,7 @@ dialog h2 { font-size: 1.35rem; }
 .rak li.kosong, .troli li.kosong { display: block; color: var(--kelabu); }
 .r-nama { display: block; font-weight: 700; line-height: 1.3; }
 .r-meta { display: block; font-size: .92rem; color: var(--kelabu); }
-.r-harga { font-family: var(--m); font-weight: 600; text-align: right; white-space: nowrap; }
+.r-harga { font-family: var(--f); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .habis { font-weight: 700; color: var(--merah); font-size: .95rem; }
 @media (min-width: 700px) {
   .rak li { grid-template-columns: auto 1fr 7rem 9.5rem; grid-template-areas: "img info harga aksi"; }
@@ -295,7 +295,7 @@ body.ada-troli { padding-bottom: 4.5rem; }
 .troli li .r-aksi { grid-area: aksi; }
 .troli li .r-harga { grid-area: harga; }
 .jumlah-troli { display: flex; justify-content: space-between; padding: .5rem 0; border-top: 1px solid var(--garis); font-size: 1.05rem; }
-.jumlah-troli b { font-family: var(--m); }
+.jumlah-troli b { font-variant-numeric: tabular-nums; }
 .jumlah-troli.tambah { background: var(--kunyit-pucat); padding: .5rem .6rem; border-top: 0; }
 .jumlah-troli.besar { font-size: 1.2rem; border-top: 2px solid var(--dakwat); margin-bottom: 1rem; }
 fieldset.pilihan { border: 0; padding: 0; margin: 0 0 1rem; }
@@ -323,7 +323,7 @@ textarea.teks-biasa { font-family: var(--f); font-size: 1.05rem; min-height: 5re
   border-radius: 999px; padding: .45rem .55rem .45rem .85rem; font: 700 1rem var(--f); cursor: pointer; flex: none; }
 .btn-troli:hover { border-color: var(--hijau); }
 .btn-troli svg { color: var(--hijau); }
-.bt-jum { font-family: var(--m); font-weight: 600; font-size: .95rem; }
+.bt-jum { font-family: var(--f); font-weight: 700; font-variant-numeric: tabular-nums; font-size: .95rem; }
 .bt-bil { background: var(--hijau); color: var(--putih); min-width: 1.7rem; height: 1.7rem; border-radius: 999px; display: inline-grid; place-items: center; font-size: .9rem; padding: 0 .4rem; }
 
 /* Hero carousel */
@@ -360,7 +360,7 @@ textarea.teks-biasa { font-family: var(--f); font-size: 1.05rem; min-height: 5re
 .kp-info { padding: .8rem .9rem .2rem; }
 .kp-info h3 { font-size: 1.02rem; line-height: 1.3; margin: 0 0 .15rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
 .kp-meta { font-size: .88rem; color: var(--kelabu); margin: 0 0 .35rem; }
-.kp-harga { font-family: var(--m); font-weight: 600; font-size: 1.12rem; color: var(--hijau); margin: 0; }
+.kp-harga { font-family: var(--f); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 1.12rem; color: var(--hijau); margin: 0; }
 .kp-aksi { padding: .6rem .9rem .9rem; }
 .kp-aksi .stepper { width: 100%; justify-content: space-between; }
 .kp-aksi .stepper output { flex: 1; }
@@ -391,12 +391,12 @@ textarea.teks-biasa { font-family: var(--f); font-size: 1.05rem; min-height: 5re
 @media (min-width: 640px) { .modal-produk { grid-template-columns: 1fr 1fr; align-items: start; } dialog.dlg-troli:has(.modal-produk) { width: min(52rem, calc(100% - 1.5rem)); } }
 .mp-img { border-radius: var(--jejari); border: 1px solid var(--kad-garis); }
 .mp-isi h2 { font-size: 1.45rem; margin: 0 0 .4rem; }
-.mp-harga { font-family: var(--m); font-weight: 600; font-size: 1.5rem; color: var(--hijau); margin: 0 0 .8rem; }
+.mp-harga { font-family: var(--f); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 1.5rem; color: var(--hijau); margin: 0 0 .8rem; }
 .mp-ket { margin: 0 0 .8rem; font-size: 1.02rem; }
 .mp-beli { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1rem 0 .5rem; }
 .mp-beli .btn { flex: 1; min-width: 10rem; }
 .mp-jum { margin: 0; color: var(--kelabu); }
-.mp-jum b { font-family: var(--m); color: var(--dakwat); }
+.mp-jum b { color: var(--dakwat); font-variant-numeric: tabular-nums; }
 .tutup-x { position: absolute; top: -.5rem; right: -.5rem; z-index: 2; width: 2.5rem; height: 2.5rem; border-radius: 999px; border: 0;
   background: var(--dakwat); color: var(--putih); font-size: 1.5rem; line-height: 1; cursor: pointer; }
 
@@ -414,3 +414,12 @@ body.ada-troli .toast { bottom: 5.5rem; }
   .slaid-bingkai.ada-mobile { aspect-ratio: 4 / 5; }
   .slaid-bingkai.ada-mobile .slaid img.tiada-m { object-fit: contain; }
 }
+
+/* ================= Top bar & tipografi Plex ================= */
+.bar-atas { display: block; background: var(--hijau-gelap); color: var(--putih); text-align: center; text-decoration: none;
+  padding: .55rem 1rem; font-size: .95rem; font-weight: 600; }
+.bar-atas:hover { color: var(--putih); background: #0e2c1a; }
+.bar-atas .pil { display: inline-block; margin-left: .6rem; padding: .05rem .65rem; border: 1px solid rgba(255,255,255,.55); border-radius: 999px; font-size: .82rem; font-weight: 500; }
+h1, h2, h3 { font-weight: 700; letter-spacing: -.015em; }
+.btn { font-weight: 600; }
+.lede { font-size: 1.2rem; }
